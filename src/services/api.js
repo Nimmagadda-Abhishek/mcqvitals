@@ -1,14 +1,14 @@
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const BASE_URL = import.meta.env.VITE_API_URL || 'https://subarctic-referable-strainer.ngrok-free.dev/api';
 
 const getHeaders = (body) => {
     const token = localStorage.getItem('token');
     const headers = {};
-    
+
     // Only set JSON content type if we're not sending FormData
     if (!(body instanceof FormData)) {
         headers['Content-Type'] = 'application/json';
     }
-    
+
     if (token) {
         headers['Authorization'] = `Bearer ${token}`;
     }
@@ -18,7 +18,7 @@ const getHeaders = (body) => {
 const handleResponse = async (response, url) => {
     const data = await response.json();
     console.log(`[API Response] ${response.status} ${url}:`, data);
-    
+
     if (!response.ok) {
         throw new Error(data.message || 'Something went wrong');
     }
@@ -27,11 +27,11 @@ const handleResponse = async (response, url) => {
 
 const request = async (url, options = {}) => {
     const fullUrl = url.startsWith('http') ? url : `${BASE_URL}${url}`;
-    
+
     // Safe logging for FormData
     const logBody = options.body instanceof FormData ? '[FormData]' : (options.body ? JSON.parse(options.body) : '');
     console.log(`[API Request] ${options.method || 'GET'} ${fullUrl}`, logBody);
-    
+
     const response = await fetch(fullUrl, {
         ...options,
         headers: {
@@ -39,7 +39,7 @@ const request = async (url, options = {}) => {
             ...options.headers
         }
     });
-    
+
     return handleResponse(response, fullUrl);
 };
 
@@ -80,30 +80,30 @@ const api = {
     },
 
     tests: {
-        getAll: () => 
+        getAll: () =>
             request('/tests'),
 
-        getById: (id) => 
+        getById: (id) =>
             request(`/tests/${id}`),
 
-        getQuestions: (id) => 
+        getQuestions: (id) =>
             request(`/tests/${id}/questions`),
     },
 
     results: {
-        submit: (resultData) => 
+        submit: (resultData) =>
             request('/results/submit', {
                 method: 'POST',
                 body: JSON.stringify(resultData),
             }),
 
-        getMyResults: () => 
+        getMyResults: () =>
             request('/results/me'),
 
-        getById: (id) => 
+        getById: (id) =>
             request(`/results/${id}`),
 
-        getStats: () => 
+        getStats: () =>
             request('/results/stats'),
 
         reportMalpractice: (data) =>
@@ -124,14 +124,14 @@ const api = {
     },
 
     resources: {
-        getAll: () => 
+        getAll: () =>
             request('/resources'),
     },
 
     admin: {
-        getDashboardStats: () => 
+        getDashboardStats: () =>
             request('/admin/dashboard'),
-        
+
         // Test Management
         createTest: (testData) =>
             request('/admin/tests', {
