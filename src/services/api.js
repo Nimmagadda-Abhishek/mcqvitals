@@ -12,6 +12,10 @@ const getHeaders = (body) => {
     if (token) {
         headers['Authorization'] = `Bearer ${token}`;
     }
+    
+    // Add ngrok header to bypass warning page
+    headers['ngrok-skip-browser-warning'] = 'true';
+    
     return headers;
 };
 
@@ -153,6 +157,10 @@ const api = {
             request(`/admin/questions/${questionId}`, {
                 method: 'PUT',
                 body: JSON.stringify(questionData),
+            }),
+        deleteQuestion: (questionId) =>
+            request(`/admin/questions/${questionId}`, {
+                method: 'DELETE',
             }),
 
         // Media Management

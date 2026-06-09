@@ -82,6 +82,7 @@ const AdminTests = () => {
   });
 
   const [newQuestion, setNewQuestion] = useState({
+    questionType: 'single',
     text: '',
     images: [],
     options: [
@@ -91,6 +92,8 @@ const AdminTests = () => {
       { text: '', images: [] }
     ],
     correctAnswer: 0,
+    trueFalseAnswers: [false, false, false, false],
+    multipleCorrectAnswers: [],
     explanation: { text: '', images: [] }
   });
 
@@ -185,6 +188,7 @@ const AdminTests = () => {
       await api.admin.addQuestion(selectedTest._id, newQuestion);
       setIsQuestionModalOpen(false);
       setNewQuestion({ 
+        questionType: 'single',
         text: '', 
         images: [], 
         options: [
@@ -194,6 +198,8 @@ const AdminTests = () => {
           { text: '', images: [] }
         ], 
         correctAnswer: 0, 
+        trueFalseAnswers: [false, false, false, false],
+        multipleCorrectAnswers: [],
         explanation: { text: '', images: [] }
       });
       alert('Question added successfully');
@@ -212,6 +218,20 @@ const AdminTests = () => {
       alert('Question updated successfully');
     } catch (error) {
       alert('Failed to update question');
+    }
+  };
+
+  const handleDeleteQuestion = async (qId) => {
+    if (window.confirm('Are you sure you want to delete this question?')) {
+      try {
+        await api.admin.deleteQuestion(qId);
+        // Refresh detailed view
+        const updatedDetails = await api.admin.getTestDetails(detailedTest._id);
+        setDetailedTest(updatedDetails);
+        alert('Question deleted successfully');
+      } catch (error) {
+        alert('Failed to delete question');
+      }
     }
   };
 
@@ -474,6 +494,14 @@ const AdminTests = () => {
             
             <form onSubmit={handleAddQuestion} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 800, marginBottom: '0.5rem', color: 'var(--on-surface-variant)' }}>QUESTION TYPE</label>
+                <select className="input-premium" style={{ marginBottom: '1rem' }} value={newQuestion.questionType} onChange={(e) => setNewQuestion({...newQuestion, questionType: e.target.value})}>
+                  <option value="single">Single Choice</option>
+                  <option value="multiple_choice">Multiple Choice (Select Multiple)</option>
+                  <option value="true_false_matrix">True/False Matrix</option>
+                </select>
+              </div>
+              <div>
                 <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 800, marginBottom: '0.5rem', color: 'var(--on-surface-variant)' }}>QUESTION TEXT</label>
                 <textarea required className="input-premium" style={{ minHeight: '80px', resize: 'none' }} value={newQuestion.text} onChange={(e) => setNewQuestion({...newQuestion, text: e.target.value})} />
               </div>
@@ -481,7 +509,16 @@ const AdminTests = () => {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
                 {newQuestion.options.map((opt, i) => (
                   <div key={i}>
-                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 800, marginBottom: '0.5rem', color: 'var(--on-surface-variant)' }}>OPTION {String.fromCharCode(65+i)}</label>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                      <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 800, color: 'var(--on-surface-variant)' }}>OPTION {String.fromCharCode(65+i)}</label>
+                      {newQuestion.options.length > 2 && (
+                        <button type="button" onClick={() => {
+                          const opts = newQuestion.options.filter((_, idx) => idx !== i);
+                          const tfs = newQuestion.trueFalseAnswers.filter((_, idx) => idx !== i);
+                          setNewQuestion({...newQuestion, options: opts, trueFalseAnswers: tfs, correctAnswer: 0});
+                        }} style={{ color: 'var(--error)', background: 'none', border: 'none', cursor: 'pointer', padding: '0.2rem' }}><Trash2 size={14}/></button>
+                      )}
+                    </div>
                     <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
                       <input 
                         className="input-premium" 
@@ -508,13 +545,72 @@ const AdminTests = () => {
                   </div>
                 ))}
               </div>
+              <button type="button" onClick={() => {
+                setNewQuestion({
+                  ...newQuestion, 
+                  options: [...newQuestion.options, { text: '', images: [] }],
+                  trueFalseAnswers: [...newQuestion.trueFalseAnswers, false]
+                })
+              }} style={{ background: 'var(--surface-high)', padding: '0.8rem', borderRadius: '8px', color: 'var(--on-surface)', fontWeight: 800, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', width: 'fit-content' }}>
+                <Plus size={16} /> Add Option
+              </button>
 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 350px), 1fr))', gap: '1.5rem' }}>
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 800, marginBottom: '0.5rem', color: 'var(--on-surface-variant)' }}>CORRECT ANSWER</label>
-                    <select className="input-premium" value={newQuestion.correctAnswer} onChange={(e) => setNewQuestion({...newQuestion, correctAnswer: parseInt(e.target.value)})}>
-                      {newQuestion.options.map((_, i) => <option key={i} value={i}>Option {String.fromCharCode(65+i)}</option>)}
-                    </select>
+                    {newQuestion.questionType === 'single' ? (
+                      <>
+                        <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 800, marginBottom: '0.5rem', color: 'var(--on-surface-variant)' }}>CORRECT ANSWER</label>
+                        <select className="input-premium" value={newQuestion.correctAnswer} onChange={(e) => setNewQuestion({...newQuestion, correctAnswer: parseInt(e.target.value)})}>
+                          {newQuestion.options.map((_, i) => <option key={i} value={i}>Option {String.fromCharCode(65+i)}</option>)}
+                        </select>
+                      </>
+                    ) : newQuestion.questionType === 'multiple_choice' ? (
+                      <>
+                        <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 800, marginBottom: '0.5rem', color: 'var(--on-surface-variant)' }}>CORRECT ANSWERS (SELECT MULTIPLE)</label>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                          {newQuestion.options.map((_, i) => (
+                            <label key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 800, cursor: 'pointer' }}>
+                              <input 
+                                type="checkbox" 
+                                checked={(newQuestion.multipleCorrectAnswers || []).includes(i)} 
+                                onChange={(e) => {
+                                  let current = newQuestion.multipleCorrectAnswers || [];
+                                  if (e.target.checked) current = [...current, i];
+                                  else current = current.filter(idx => idx !== i);
+                                  setNewQuestion({...newQuestion, multipleCorrectAnswers: current});
+                                }}
+                                style={{ width: '18px', height: '18px' }}
+                              />
+                              Option {String.fromCharCode(65+i)}
+                            </label>
+                          ))}
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 800, marginBottom: '0.5rem', color: 'var(--on-surface-variant)' }}>CORRECT ANSWERS (TRUE/FALSE)</label>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                          {newQuestion.options.map((_, i) => (
+                            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                              <span style={{ fontWeight: 800, width: '70px', fontSize: '0.9rem' }}>Option {String.fromCharCode(65+i)}</span>
+                              <select 
+                                className="input-premium" 
+                                style={{ width: '100px', padding: '0.4rem 0.8rem' }}
+                                value={newQuestion.trueFalseAnswers[i] ? 'true' : 'false'} 
+                                onChange={(e) => {
+                                  const tf = [...newQuestion.trueFalseAnswers];
+                                  tf[i] = e.target.value === 'true';
+                                  setNewQuestion({...newQuestion, trueFalseAnswers: tf});
+                                }}
+                              >
+                                <option value="true">True</option>
+                                <option value="false">False</option>
+                              </select>
+                            </div>
+                          ))}
+                        </div>
+                      </>
+                    )}
                   </div>
                   <div>
                     <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 800, marginBottom: '0.5rem', color: 'var(--on-surface-variant)' }}>QUESTION MEDIA (OPTIONAL)</label>
@@ -615,20 +711,37 @@ const AdminTests = () => {
                           </button>
                         </div>
                       ) : (
-                        <button 
-                          onClick={() => { 
-                            setEditingQuestionId(q._id); 
-                            setEditingData(JSON.parse(JSON.stringify(q))); 
-                          }}
-                          style={{ padding: '0.4rem 1rem', background: 'var(--primary-container)', color: 'var(--primary)', border: 'none', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer' }}
-                        >
-                          Edit Question
-                        </button>
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                          <button 
+                            onClick={() => { 
+                              setEditingQuestionId(q._id); 
+                              setEditingData(JSON.parse(JSON.stringify(q))); 
+                            }}
+                            style={{ padding: '0.4rem 1rem', background: 'var(--primary-container)', color: 'var(--primary)', border: 'none', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer' }}
+                          >
+                            Edit Question
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteQuestion(q._id)}
+                            style={{ padding: '0.4rem', background: 'var(--error-container)', color: 'var(--error)', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
+                            title="Delete Question"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
                       )}
                     </div>
                     
                     {editingQuestionId === q._id ? (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 800, marginBottom: '0.5rem', color: 'var(--on-surface-variant)' }}>QUESTION TYPE</label>
+                          <select className="input-premium" value={editingData.questionType || 'single'} onChange={(e) => setEditingData({...editingData, questionType: e.target.value})}>
+                            <option value="single">Single Choice</option>
+                            <option value="multiple_choice">Multiple Choice (Select Multiple)</option>
+                            <option value="true_false_matrix">True/False Matrix</option>
+                          </select>
+                        </div>
                         <textarea 
                           className="input-premium" 
                           value={editingData.text} 
@@ -644,7 +757,16 @@ const AdminTests = () => {
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                           {editingData.options.map((opt, oIdx) => (
                             <div key={oIdx} className="card-tonal" style={{ padding: '1rem' }}>
-                              <label style={{ fontSize: '0.7rem', fontWeight: 800, marginBottom: '0.5rem', display: 'block' }}>OPTION {String.fromCharCode(65+oIdx)}</label>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                                <label style={{ fontSize: '0.7rem', fontWeight: 800, display: 'block' }}>OPTION {String.fromCharCode(65+oIdx)}</label>
+                                {editingData.options.length > 2 && (
+                                  <button type="button" onClick={() => {
+                                    const opts = editingData.options.filter((_, idx) => idx !== oIdx);
+                                    const tfs = (editingData.trueFalseAnswers || []).filter((_, idx) => idx !== oIdx);
+                                    setEditingData({...editingData, options: opts, trueFalseAnswers: tfs, correctAnswer: 0});
+                                  }} style={{ color: 'var(--error)', background: 'none', border: 'none', cursor: 'pointer' }}><Trash2 size={14}/></button>
+                                )}
+                              </div>
                               <input 
                                 className="input-premium" 
                                 value={opt.text} 
@@ -668,11 +790,74 @@ const AdminTests = () => {
                             </div>
                           ))}
                         </div>
+                        <button type="button" onClick={() => {
+                          setEditingData({
+                            ...editingData, 
+                            options: [...editingData.options, { text: '', images: [] }],
+                            trueFalseAnswers: [...(editingData.trueFalseAnswers || []), false]
+                          })
+                        }} style={{ background: 'var(--surface-high)', padding: '0.8rem', borderRadius: '8px', color: 'var(--on-surface)', fontWeight: 800, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', width: 'fit-content' }}>
+                          <Plus size={16} /> Add Option
+                        </button>
+
                         <div style={{ padding: '1.5rem', background: 'var(--surface)', borderRadius: '12px', borderLeft: '4px solid var(--primary)', marginBottom: '1rem' }}>
-                          <label style={{ fontSize: '0.75rem', fontWeight: 900, color: 'var(--primary)', marginBottom: '0.5rem', display: 'block' }}>CORRECT ANSWER</label>
-                          <select className="input-premium" value={editingData.correctAnswer !== undefined ? editingData.correctAnswer : 0} onChange={(e) => setEditingData({...editingData, correctAnswer: parseInt(e.target.value)})}>
-                            {editingData.options.map((_, i) => <option key={i} value={i}>Option {String.fromCharCode(65+i)}</option>)}
-                          </select>
+                          {(editingData.questionType || 'single') === 'single' ? (
+                            <>
+                              <label style={{ fontSize: '0.75rem', fontWeight: 900, color: 'var(--primary)', marginBottom: '0.5rem', display: 'block' }}>CORRECT ANSWER</label>
+                              <select className="input-premium" value={editingData.correctAnswer !== undefined ? editingData.correctAnswer : 0} onChange={(e) => setEditingData({...editingData, correctAnswer: parseInt(e.target.value)})}>
+                                {editingData.options.map((_, i) => <option key={i} value={i}>Option {String.fromCharCode(65+i)}</option>)}
+                              </select>
+                            </>
+                          ) : editingData.questionType === 'multiple_choice' ? (
+                            <>
+                              <label style={{ fontSize: '0.75rem', fontWeight: 900, color: 'var(--primary)', marginBottom: '0.5rem', display: 'block' }}>CORRECT ANSWERS (SELECT MULTIPLE)</label>
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                {editingData.options.map((_, i) => (
+                                  <label key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 800, cursor: 'pointer' }}>
+                                    <input 
+                                      type="checkbox" 
+                                      checked={(editingData.multipleCorrectAnswers || []).includes(i)} 
+                                      onChange={(e) => {
+                                        let current = editingData.multipleCorrectAnswers || [];
+                                        if (e.target.checked) current = [...current, i];
+                                        else current = current.filter(idx => idx !== i);
+                                        setEditingData({...editingData, multipleCorrectAnswers: current});
+                                      }}
+                                      style={{ width: '18px', height: '18px' }}
+                                    />
+                                    Option {String.fromCharCode(65+i)}
+                                  </label>
+                                ))}
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              <label style={{ fontSize: '0.75rem', fontWeight: 900, color: 'var(--primary)', marginBottom: '0.5rem', display: 'block' }}>CORRECT ANSWERS (TRUE/FALSE)</label>
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+                                {editingData.options.map((_, i) => {
+                                  const tfArray = editingData.trueFalseAnswers || [];
+                                  return (
+                                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                      <span style={{ fontWeight: 800, width: '80px', fontSize: '0.85rem' }}>Option {String.fromCharCode(65+i)}</span>
+                                      <select 
+                                        className="input-premium" 
+                                        style={{ width: '120px' }}
+                                        value={tfArray[i] ? 'true' : 'false'} 
+                                        onChange={(e) => {
+                                          const tf = [...tfArray];
+                                          tf[i] = e.target.value === 'true';
+                                          setEditingData({...editingData, trueFalseAnswers: tf});
+                                        }}
+                                      >
+                                        <option value="true">True</option>
+                                        <option value="false">False</option>
+                                      </select>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </>
+                          )}
                         </div>
                         <div style={{ padding: '1.5rem', background: 'var(--surface)', borderRadius: '12px', borderLeft: '4px solid var(--primary)' }}>
                           <label style={{ fontSize: '0.75rem', fontWeight: 900, color: 'var(--primary)', marginBottom: '0.5rem', display: 'block' }}>EXPLANATION</label>
@@ -704,31 +889,63 @@ const AdminTests = () => {
 
 
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '2rem' }}>
-                          {q.options.map((opt, optIdx) => (
-                            <div key={optIdx} style={{ 
-                              padding: '1.2rem', 
-                              background: optIdx === q.correctAnswer ? 'var(--success-container)' : 'var(--surface)', 
-                              border: `1px solid ${optIdx === q.correctAnswer ? 'var(--success)' : 'var(--outline-variant)'}`,
-                              borderRadius: '12px',
-                              display: 'flex',
-                              flexDirection: 'column',
-                              gap: '1rem'
-                            }}>
-                              <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                                <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: optIdx === q.correctAnswer ? 'var(--success)' : 'var(--surface-high)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 900 }}>
-                                  {String.fromCharCode(65+optIdx)}
-                                </div>
-                                <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>{opt.text}</span>
-                              </div>
-                              
-                              {opt.images && opt.images.length > 0 && (
-                                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.5rem' }}>
-                                  {opt.images.map((img, i) => <img key={i} src={img} alt="Option" style={{ width: '100%', maxHeight: '120px', objectFit: 'contain', borderRadius: '6px', background: 'white' }} />)}
-                                </div>
-                              )}
+                          {q.options.map((opt, optIdx) => {
+                            const qType = q.questionType || 'single';
+                            const isSingle = qType === 'single';
+                            const isMultiChoice = qType === 'multiple_choice';
+                            const isMatrix = qType === 'true_false_matrix';
 
-                            </div>
-                          ))}
+                            let isCorrect = false;
+                            if (isSingle) {
+                              isCorrect = optIdx === q.correctAnswer;
+                            } else if (isMultiChoice) {
+                              isCorrect = (q.multipleCorrectAnswers || []).includes(optIdx);
+                            } else if (isMatrix) {
+                              isCorrect = q.trueFalseAnswers && q.trueFalseAnswers[optIdx];
+                            }
+                            
+                            const highlightGreen = isCorrect && !isMatrix;
+
+                            return (
+                              <div key={optIdx} style={{ 
+                                padding: '1.2rem', 
+                                background: highlightGreen ? 'var(--success-container)' : 'var(--surface)', 
+                                border: `1px solid ${highlightGreen ? 'var(--success)' : 'var(--outline-variant)'}`,
+                                borderRadius: '12px',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '1rem'
+                              }}>
+                                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', justifyContent: 'space-between' }}>
+                                  <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                                    <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: highlightGreen ? 'var(--success)' : 'var(--surface-high)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 900 }}>
+                                      {String.fromCharCode(65+optIdx)}
+                                    </div>
+                                    <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>{opt.text}</span>
+                                  </div>
+                                  {isMatrix && (
+                                    <span style={{ 
+                                      padding: '0.3rem 0.6rem', 
+                                      borderRadius: '4px', 
+                                      fontSize: '0.7rem', 
+                                      fontWeight: 800,
+                                      background: isCorrect ? 'var(--success-container)' : 'var(--error-container)',
+                                      color: isCorrect ? 'var(--success)' : 'var(--error)'
+                                    }}>
+                                      {isCorrect ? 'TRUE' : 'FALSE'}
+                                    </span>
+                                  )}
+                                </div>
+                                
+                                {opt.images && opt.images.length > 0 && (
+                                  <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.5rem' }}>
+                                    {opt.images.map((img, i) => <img key={i} src={img} alt="Option" style={{ width: '100%', maxHeight: '120px', objectFit: 'contain', borderRadius: '6px', background: 'white' }} />)}
+                                  </div>
+                                )}
+
+                              </div>
+                            );
+                          })}
                         </div>
 
                         <div style={{ padding: '1.5rem', background: 'var(--surface)', borderRadius: '12px', borderLeft: '4px solid var(--primary)' }}>
