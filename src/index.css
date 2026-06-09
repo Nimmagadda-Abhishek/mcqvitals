@@ -1,0 +1,315 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap');
+
+:root {
+  /* Core Palette - The Scholarly Atheneum */
+  --primary: #0037b0;
+  --primary-container: #d9e2ff;
+  --secondary: #585e71;
+  --surface: #fdfbff;
+  --surface-low: #f4f3f9;
+  --surface-lowest: #ffffff;
+  --surface-high: #eeedf4;
+  --on-surface: #1b1b1f;
+  --on-surface-variant: #44464f;
+  --outline-variant: #c4c6d0;
+  
+  --error: #ba1a1a;
+  --success: #006d3a;
+  --success-container: #98f7b5;
+
+  /* Typography */
+  --font-display: 'Manrope', sans-serif;
+  --font-body: 'Inter', sans-serif;
+
+  /* Shapes */
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
+  /* Global Responsive Breakpoints */
+  @media (max-width: 768px) {
+    --radius-xl: 24px;
+    --radius-lg: 16px;
+  }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--surface);
+  color: var(--on-surface);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, .display-text {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+/* Responsive Font Sizes */
+h1 { font-size: clamp(2rem, 5vw, 3.5rem); }
+h2 { font-size: clamp(1.5rem, 4vw, 2.5rem); }
+h3 { font-size: clamp(1.2rem, 3vw, 1.8rem); }
+
+/* The "No-Line" Rule: Define zones through tonal shifts */
+.section-tonal {
+  background: var(--surface-low);
+  border-radius: var(--radius-xl);
+  padding: clamp(1.5rem, 5vw, 3rem);
+}
+
+.card-tonal {
+  background: var(--surface-lowest);
+  border-radius: var(--radius-lg);
+  padding: clamp(1rem, 4vw, 2rem);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.card-tonal:hover {
+  transform: translateY(-4px);
+  background: var(--surface-high);
+}
+
+.premium-card {
+  background: var(--surface-lowest);
+  border-radius: var(--radius-xl);
+  padding: clamp(1.5rem, 5vw, 2.5rem);
+  box-shadow: 0 12px 32px -4px rgba(0, 55, 176, 0.06);
+  transition: all 0.3s ease;
+}
+
+.premium-card:hover {
+  transform: translateY(-4px);
+  background: var(--surface-low);
+}
+
+.primary-gradient {
+  background: linear-gradient(135deg, var(--primary) 0%, #0055ff 100%);
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, var(--primary) 0%, #0055ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Glassmorphism Refinement */
+.glass {
+  background: rgba(253, 251, 255, 0.7);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+
+/* Academic Sidebar Layout Controls */
+.app-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+@media (max-width: 768px) {
+  .app-container {
+    flex-direction: column;
+  }
+}
+
+.sidebar-rail {
+  width: 88px;
+  background: var(--surface-low);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  z-index: 100;
+}
+
+@media (max-width: 768px) {
+  .sidebar-rail {
+    width: 100%;
+    height: 72px;
+    flex-direction: row;
+    padding: 0 5%;
+    justify-content: space-between;
+    bottom: 0;
+    top: auto;
+    position: fixed;
+    border-top: 1px solid var(--outline-variant);
+    background: var(--surface-lowest);
+  }
+}
+
+.main-workspace {
+  flex: 1;
+  background: var(--surface);
+  padding: clamp(1rem, 5vw, 2.5rem);
+  min-height: 100vh;
+}
+
+@media (max-width: 768px) {
+  .main-workspace {
+    padding-bottom: 100px; /* Space for fixed mobile sidebar */
+  }
+}
+
+button, .btn {
+  font-family: var(--font-display);
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  transition: all 0.2s ease;
+  background: none;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Form Controls Refinement */
+.input-premium {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  border: 2px solid var(--outline-variant);
+  background: var(--surface-low);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--on-surface);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+}
+
+.input-premium:focus {
+  border-color: var(--primary);
+  background: var(--surface-lowest);
+  box-shadow: 0 0 0 4px var(--primary-container);
+}
+
+.input-premium::placeholder {
+  color: var(--on-surface-variant);
+  opacity: 0.5;
+}
+
+textarea.input-premium {
+  min-height: 120px;
+  resize: vertical;
+  line-height: 1.6;
+  padding: 1.2rem 1.5rem;
+}
+
+/* Responsive Utility Classes */
+.mobile-hide {
+  @media (max-width: 768px) {
+    display: none !important;
+  }
+}
+
+.desktop-hide {
+  @media (min-width: 769px) {
+    display: none !important;
+  }
+}
+
+/* Shimmer Animation */
+@keyframes shimmer {
+  0% { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+
+.shimmer {
+  animation: shimmer 2s infinite linear;
+  background: linear-gradient(to right, var(--surface-low) 8%, var(--surface-high) 18%, var(--surface-low) 33%);
+  background-size: 1000px 100%;
+  position: relative;
+}
+
+.shimmer-text {
+  height: 1rem;
+  width: 100%;
+  border-radius: 4px;
+}
+
+.shimmer-circle {
+  border-radius: 50%;
+}
+
+.shimmer-card {
+  height: 200px;
+  border-radius: var(--radius-lg);
+}
+
+/* Animations */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.spinner-small {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--primary-container);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* ─── Security & Anti-Capture Styles ─── */
+
+/* Prevent element selection and copying */
+html, body {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* Allow text selection in input/textarea for accessibility but prevent general copying */
+input, textarea {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+/* Disable printing by hiding content in print media */
+@media print {
+  body {
+    background: white;
+    color: black;
+  }
+  
+  body::before {
+    content: "Printing is not allowed. This page cannot be printed.";
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 24px;
+    font-weight: bold;
+    color: red;
+    text-align: center;
+    z-index: 9999;
+  }
+  
+  * {
+    display: none !important;
+  }
+}
+
+/* Prevent right-click context menu visual appearance during hover */
+body {
+  -webkit-touch-callout: none;
+}

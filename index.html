@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mcqvitals | Premium MCQ Testing Platform</title>
+    <meta name="description" content="Master your professional exams with Mcqvitals's editorial-grade MCQ assessments and real-time analytics." />
+    <script>
+      // Global PrintScreen blocking - runs before any React code
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'PrintScreen') {
+          e.preventDefault();
+          e.stopPropagation();
+          e.returnValue = false;
+          alert('Screenshots and screen recordings are not allowed on this platform.');
+          return false;
+        }
+      }, true);
+      
+      // Block Ctrl+S
+      document.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+          e.preventDefault();
+          e.stopPropagation();
+          e.returnValue = false;
+          return false;
+        }
+      }, true);
+      
+      // Block Ctrl+P (Print)
+      document.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'p') {
+          e.preventDefault();
+          e.stopPropagation();
+          e.returnValue = false;
+          alert('Printing is not allowed on this platform.');
+          return false;
+        }
+      }, true);
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
