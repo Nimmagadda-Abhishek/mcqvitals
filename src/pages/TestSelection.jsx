@@ -146,148 +146,150 @@ const TestSelection = () => {
           const exhausted = attempts >= MAX_ATTEMPTS;
 
           return (
-            <div
-              key={test._id}
-              className="premium-card"
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                opacity: exhausted ? 0.78 : 1,
-                transition: 'opacity 0.2s ease',
-                position: 'relative',
-                overflow: 'hidden'
-              }}
-            >
-              {/* Exhausted overlay stripe */}
-              {exhausted && (
-                <div style={{
-                  position: 'absolute',
-                  top: 0, left: 0, right: 0,
-                  height: '4px',
-                  background: 'var(--error)'
-                }} />
-              )}
+                      <div
+                        key={test._id}
+                        className="premium-card"
+                        style={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          opacity: exhausted ? 0.78 : 1,
+                          transition: 'opacity 0.2s ease',
+                          position: 'relative',
+                          overflow: 'hidden'
+                        }}
+                      >
+                        {/* Exhausted overlay stripe */}
+                        {exhausted && (
+                          <div style={{
+                            position: 'absolute',
+                            top: 0, left: 0, right: 0,
+                            height: '4px',
+                            background: 'var(--error)'
+                          }} />
+                        )}
 
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem' }}>
-                <div style={{ 
-                  width: '56px', 
-                  height: '56px', 
-                  borderRadius: '14px', 
-                  background: exhausted ? 'var(--error-container)' : 'var(--primary-container)', 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'center',
-                  color: exhausted ? 'var(--error)' : 'var(--primary)'
-                }}>
-                  {exhausted ? <Lock size={26} /> : <ClipboardList size={28} />}
-                </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem' }}>
+                          <div style={{ 
+                            width: '56px', 
+                            height: '56px', 
+                            borderRadius: '14px', 
+                            background: exhausted ? 'var(--error-container)' : 'var(--primary-container)', 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            justifyContent: 'center',
+                            color: exhausted ? 'var(--error)' : 'var(--primary)'
+                          }}>
+                            {exhausted ? <Lock size={26} /> : <ClipboardList size={28} />}
+                          </div>
 
-                <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center' }}>
-                  {/* Attempt badge */}
-                  <div style={{ 
-                    background: exhausted ? 'var(--error-container)' : attempts === 1 ? 'rgba(234, 179, 8, 0.15)' : 'var(--surface-low)', 
-                    color: exhausted ? 'var(--error)' : attempts === 1 ? '#b45309' : 'var(--on-surface-variant)',
-                    padding: '0.4rem 0.9rem', 
-                    borderRadius: '20px',
-                    fontSize: '0.75rem',
-                    fontWeight: 800,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.35rem'
-                  }}>
-                    <RotateCcw size={12} />
-                    {attempts}/{MAX_ATTEMPTS} Attempts
-                  </div>
-                  <div style={{ 
-                    background: 'var(--surface-low)', 
-                    padding: '0.5rem 1rem', 
-                    borderRadius: '20px',
-                    fontSize: '0.75rem',
-                    fontWeight: 800,
-                    color: 'var(--primary)',
-                    textTransform: 'uppercase'
-                  }}>
-                    {test.difficulty}
-                  </div>
-                </div>
-              </div>
+                          <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center' }}>
+                            {/* Attempt badge */}
+                            <div style={{ 
+                              background: exhausted ? 'var(--error-container)' : attempts === 1 ? 'rgba(234, 179, 8, 0.15)' : 'var(--surface-low)', 
+                              color: exhausted ? 'var(--error)' : attempts === 1 ? '#b45309' : 'var(--on-surface-variant)',
+                              padding: '0.4rem 0.9rem', 
+                              borderRadius: '20px',
+                              fontSize: '0.75rem',
+                              fontWeight: 800,
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '0.35rem'
+                            }}>
+                              <RotateCcw size={12} />
+                              {attempts}/{MAX_ATTEMPTS} Attempts
+                            </div>
+                            <div style={{ 
+                              background: 'var(--surface-low)', 
+                              padding: '0.5rem 1rem', 
+                              borderRadius: '20px',
+                              fontSize: '0.75rem',
+                              fontWeight: 800,
+                              color: 'var(--primary)',
+                              textTransform: 'uppercase'
+                            }}>
+                              {test.difficulty}
+                            </div>
+                          </div>
+                        </div>
 
-              <h3 style={{ fontSize: '1.6rem', marginBottom: '0.5rem', lineHeight: 1.2 }}>{test.title}</h3>
-              <div style={{ 
-                fontSize: '0.9rem', 
-                color: 'var(--primary)', 
-                fontWeight: 700, 
-                marginBottom: '1.5rem',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem'
-              }}>
-                <BookOpen size={16} /> {test.category}
-              </div>
+                        <h3 style={{ fontSize: '1.6rem', marginBottom: '0.5rem', lineHeight: 1.2 }}>{test.title}</h3>
+                        <div style={{ 
+                          fontSize: '0.9rem', 
+                          color: 'var(--primary)', 
+                          fontWeight: 700, 
+                          marginBottom: '1.5rem',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.5rem'
+                        }}>
+                          <BookOpen size={16} /> {test.category}
+                        </div>
 
-              <div style={{ 
-                display: 'grid', 
-                gridTemplateColumns: 'repeat(3, 1fr)', 
-                gap: '1rem',
-                marginBottom: '2.5rem',
-                background: 'var(--surface-low)',
-                padding: '1.2rem',
-                borderRadius: 'var(--radius-md)'
-              }}>
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--on-surface-variant)', marginBottom: '0.3rem' }}>Duration</div>
-                  <div style={{ fontWeight: 800 }}>{test.duration}m</div>
-                </div>
-                <div style={{ textAlign: 'center', borderLeft: '1px solid var(--outline-variant)', borderRight: '1px solid var(--outline-variant)' }}>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--on-surface-variant)', marginBottom: '0.3rem' }}>Questions</div>
-                  <div style={{ fontWeight: 800 }}>{test.questions?.length || 0}</div>
-                </div>
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--on-surface-variant)', marginBottom: '0.3rem' }}>Max Marks</div>
-                  <div style={{ fontWeight: 800 }}>{(test.questions?.length || 0) * 4}</div>
-                </div>
-              </div>
+                        <div style={{ 
+                          display: 'grid', 
+                          gridTemplateColumns: 'repeat(3, 1fr)', 
+                          gap: '1rem',
+                          marginBottom: '2.5rem',
+                          background: 'var(--surface-low)',
+                          padding: '1.2rem',
+                          borderRadius: 'var(--radius-md)'
+                        }}>
+                          <div style={{ textAlign: 'center' }}>
+                            <div style={{ fontSize: '0.75rem', color: 'var(--on-surface-variant)', marginBottom: '0.3rem' }}>Duration</div>
+                            <div style={{ fontWeight: 800 }}>{test.duration}m</div>
+                          </div>
+                          <div style={{ textAlign: 'center', borderLeft: '1px solid var(--outline-variant)', borderRight: '1px solid var(--outline-variant)' }}>
+                            <div style={{ fontSize: '0.75rem', color: 'var(--on-surface-variant)', marginBottom: '0.3rem' }}>Questions</div>
+                            <div style={{ fontWeight: 800 }}>{test.questions?.length || 0}</div>
+                          </div>
+                          <div style={{ textAlign: 'center' }}>
+                            <div style={{ fontSize: '0.75rem', color: 'var(--on-surface-variant)', marginBottom: '0.3rem' }}>Max Marks</div>
+                            <div style={{ fontWeight: 800 }}>{(test.questions?.length || 0) * 4}</div>
+                          </div>
+                        </div>
 
-              <div style={{ marginTop: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--on-surface-variant)', fontSize: '0.85rem', fontWeight: 600 }}>
-                  <Star size={16} color="#eeb100" fill="#eeb100" /> 4.8 Rating
-                </div>
+                        <div style={{ marginTop: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--on-surface-variant)', fontSize: '0.85rem', fontWeight: 600 }}>
+                            <Star size={16} color="#eeb100" fill="#eeb100" /> {test.rating || 4.8} Rating
+                          </div>
 
-                {exhausted ? (
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.6rem',
-                    padding: '1rem 1.5rem',
-                    borderRadius: 'var(--radius-md)',
-                    background: 'var(--error-container)',
-                    color: 'var(--error)',
-                    fontWeight: 800,
-                    fontSize: '0.9rem',
-                    cursor: 'not-allowed'
-                  }}>
-                    <Lock size={16} /> Limit Reached
-                  </div>
-                ) : (
-                  <button 
-                    onClick={() => navigate(`/test/${test._id}`)}
-                    className="primary-gradient" 
-                    style={{ 
-                      padding: '1rem 2rem', 
-                      borderRadius: 'var(--radius-md)', 
-                      color: 'white', 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      gap: '0.8rem',
-                      fontWeight: 800,
-                      background: attempts === 1 ? 'linear-gradient(135deg, #d97706, #b45309)' : undefined
-                    }}
-                  >
-                    {attempts === 1 ? 'Final Attempt' : 'Start Assessment'} <ArrowRight size={18} />
-                  </button>
-                )}
-              </div>
-            </div>
+                          {exhausted ? (
+                            <div style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '0.6rem',
+                              padding: '1rem 1.5rem',
+                              borderRadius: 'var(--radius-md)',
+                              background: 'var(--error-container)',
+                              color: 'var(--error)',
+                              fontWeight: 800,
+                              fontSize: '0.9rem',
+                              cursor: 'not-allowed'
+                            }}>
+                              <Lock size={16} /> Limit Reached
+                            </div>
+                          ) : (
+                            <button 
+                              onClick={() => navigate(`/test/${test._id}`)}
+                              className="primary-gradient" 
+                              style={{ 
+                                padding: '1rem 2rem', 
+                                borderRadius: 'var(--radius-md)', 
+                                color: 'white', 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                gap: '0.8rem',
+                                fontWeight: 800,
+                                background: attempts === 1 ? 'linear-gradient(135deg, #d97706, #b45309)' : undefined,
+                                border: 'none',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              {attempts === 1 ? 'Final Attempt' : 'Start Assessment'} <ArrowRight size={18} />
+                            </button>
+                          )}
+                        </div>
+                      </div>
           );
         })}
       </div>

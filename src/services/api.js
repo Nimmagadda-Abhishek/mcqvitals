@@ -142,6 +142,11 @@ const api = {
                 method: 'POST',
                 body: JSON.stringify(testData),
             }),
+        updateTest: (testId, testData) =>
+            request(`/admin/tests/${testId}`, {
+                method: 'PUT',
+                body: JSON.stringify(testData),
+            }),
         getTestDetails: (testId) =>
             request(`/admin/tests/${testId}`),
         addQuestion: (testId, questionData) =>

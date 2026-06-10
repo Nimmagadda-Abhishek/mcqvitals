@@ -12,7 +12,8 @@ import {
   AlertCircle,
   X,
   UploadCloud,
-  Eye
+  Eye,
+  Edit2
 } from 'lucide-react';
 import api from '../services/api';
 import { CardShimmer } from '../components/common/Shimmer';
@@ -78,8 +79,12 @@ const AdminTests = () => {
     description: '',
     category: '',
     duration: 60,
-    difficulty: 'Beginner'
+    difficulty: 'Beginner',
+    rating: 5
   });
+
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingTest, setEditingTest] = useState(null);
 
   const [newQuestion, setNewQuestion] = useState({
     questionType: 'single',
@@ -176,9 +181,24 @@ const AdminTests = () => {
       await api.admin.createTest(newTest);
       setIsModalOpen(false);
       loadTests();
-      setNewTest({ title: '', description: '', category: '', duration: 60, difficulty: 'Beginner' });
+      setNewTest({ title: '', description: '', category: '', duration: 60, difficulty: 'Beginner', rating: 5 });
     } catch (error) {
       alert('Failed to create test');
+    }
+  };
+
+  const handleUpdateTest = async (e) => {
+    e.preventDefault();
+    try {
+      await api.admin.updateTest(editingTest._id, editingTest);
+      setIsEditModalOpen(false);
+      loadTests();
+      if (detailedTest && detailedTest._id === editingTest._id) {
+        setDetailedTest({ ...detailedTest, ...editingTest });
+      }
+      alert('Module updated successfully');
+    } catch (error) {
+      alert('Failed to update module');
     }
   };
 
@@ -204,7 +224,7 @@ const AdminTests = () => {
       });
       alert('Question added successfully');
     } catch (error) {
-      alert('Failed to add question');
+      alert(error.message || 'Failed to add question');
     }
   };
 
@@ -322,7 +342,18 @@ const AdminTests = () => {
                   <BookOpen size={22} />
                 </div>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <button onClick={() => handleDeleteTest(test._id)} style={{ color: 'var(--error)', padding: '0.5rem', background: 'none' }}>
+                  <button 
+                    onClick={() => { setEditingTest(test); setIsEditModalOpen(true); }} 
+                    style={{ color: 'var(--primary)', padding: '0.5rem', background: 'none', cursor: 'pointer', border: 'none' }}
+                    title="Edit Module"
+                  >
+                    <Edit2 size={18} />
+                  </button>
+                  <button 
+                    onClick={() => handleDeleteTest(test._id)} 
+                    style={{ color: 'var(--error)', padding: '0.5rem', background: 'none', cursor: 'pointer', border: 'none' }}
+                    title="Delete Module"
+                  >
                     <Trash2 size={18} />
                   </button>
                 </div>
@@ -333,12 +364,15 @@ const AdminTests = () => {
                 {test.description}
               </p>
 
-              <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
+              <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
                 <div className="badge-tonal" style={{ background: 'var(--surface-high)', color: 'var(--on-surface)', fontSize: '0.75rem', fontWeight: 800 }}>
                   <Clock size={14} style={{ marginRight: '0.4rem' }} /> {test.duration}m
                 </div>
                 <div className="badge-tonal" style={{ background: 'var(--primary-container)', color: 'var(--primary)', fontSize: '0.75rem', fontWeight: 800 }}>
                   {test.difficulty}
+                </div>
+                <div className="badge-tonal" style={{ background: 'var(--success-container)', color: 'var(--success)', fontSize: '0.75rem', fontWeight: 800 }}>
+                  ★ {test.rating || 5}/5
                 </div>
               </div>
 
@@ -431,6 +465,11 @@ const AdminTests = () => {
                 <div>
                   <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 800, marginBottom: '0.8rem', color: 'var(--on-surface-variant)', letterSpacing: '0.05em' }}>DURATION (MINUTES)</label>
                   <input required className="input-premium" type="number" value={newTest.duration} onChange={(e) => setNewTest({...newTest, duration: parseInt(e.target.value)})} />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 800, marginBottom: '0.8rem', color: 'var(--on-surface-variant)', letterSpacing: '0.05em' }}>RATING (1-5)</label>
+                  <input required className="input-premium" type="number" min="1" max="5" value={newTest.rating} onChange={(e) => setNewTest({...newTest, rating: parseInt(e.target.value)})} />
                 </div>
               </div>
 
@@ -646,6 +685,108 @@ const AdminTests = () => {
         </div>
       )}
 
+      {/* Edit Test Modal */}
+      {isEditModalOpen && editingTest && (
+        <div style={{ 
+          position: 'fixed', 
+          top: 0, left: 0, right: 0, bottom: 0, 
+          background: 'rgba(10, 10, 10, 0.4)', 
+          backdropFilter: 'blur(20px)',
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center', 
+          zIndex: 1000, 
+          padding: 'clamp(1rem, 5vw, 2rem)' 
+        }}>
+          <div className="card-tonal" style={{ 
+            width: '100%', 
+            maxWidth: '650px', 
+            maxHeight: '90vh',
+            overflowY: 'auto',
+            background: 'var(--surface)', 
+            border: '1px solid var(--outline-variant)',
+            boxShadow: '0 24px 48px rgba(0,0,0,0.2)',
+            position: 'relative',
+            padding: 'clamp(1.5rem, 5vw, 3rem)'
+          }}>
+            <button onClick={() => setIsEditModalOpen(false)} style={{ position: 'absolute', top: '2rem', right: '2rem', background: 'var(--surface-high)', border: 'none', width: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+              <X size={20} color="var(--on-surface)" />
+            </button>
+
+            <header style={{ marginBottom: '2.5rem' }}>
+              <div style={{ fontSize: '0.8rem', fontWeight: 900, color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: '0.5rem' }}>Edit Settings</div>
+              <h2 style={{ fontSize: '2.2rem', fontWeight: 800 }}>Update Module</h2>
+            </header>
+
+            <form onSubmit={handleUpdateTest} style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+                <div style={{ gridColumn: 'span 2' }}>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 800, marginBottom: '0.8rem', color: 'var(--on-surface-variant)', letterSpacing: '0.05em' }}>MODULE TITLE</label>
+                  <input required className="input-premium" type="text" value={editingTest.title} onChange={(e) => setEditingTest({...editingTest, title: e.target.value})} placeholder="e.g. Quantum Computing Fundamentals" />
+                </div>
+                
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 800, marginBottom: '0.8rem', color: 'var(--on-surface-variant)', letterSpacing: '0.05em' }}>DISCIPLINE / CATEGORY</label>
+                  <input required className="input-premium" type="text" value={editingTest.category} onChange={(e) => setEditingTest({...editingTest, category: e.target.value})} placeholder="e.g. Physics" />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 800, marginBottom: '0.8rem', color: 'var(--on-surface-variant)', letterSpacing: '0.05em' }}>DURATION (MINUTES)</label>
+                  <input required className="input-premium" type="number" value={editingTest.duration} onChange={(e) => setEditingTest({...editingTest, duration: parseInt(e.target.value)})} />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 800, marginBottom: '0.8rem', color: 'var(--on-surface-variant)', letterSpacing: '0.05em' }}>RATING (1-5)</label>
+                  <input required className="input-premium" type="number" min="1" max="5" value={editingTest.rating || 5} onChange={(e) => setEditingTest({...editingTest, rating: parseInt(e.target.value)})} />
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 800, marginBottom: '1.2rem', color: 'var(--on-surface-variant)', letterSpacing: '0.05em' }}>LEVEL OF RIGOR</label>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
+                  {['Beginner', 'Intermediate', 'Advanced'].map((lvl) => (
+                    <button
+                      key={lvl}
+                      type="button"
+                      onClick={() => setEditingTest({...editingTest, difficulty: lvl})}
+                      style={{
+                        padding: '1rem',
+                        borderRadius: '12px',
+                        border: '2px solid',
+                        borderColor: editingTest.difficulty === lvl ? 'var(--primary)' : 'var(--outline-variant)',
+                        background: editingTest.difficulty === lvl ? 'var(--primary-container)' : 'transparent',
+                        color: editingTest.difficulty === lvl ? 'var(--primary)' : 'var(--on-surface)',
+                        fontWeight: 800,
+                        cursor: 'pointer',
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      {lvl}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 800, marginBottom: '0.8rem', color: 'var(--on-surface-variant)', letterSpacing: '0.05em' }}>ACADEMIC ABSTRACT / DESCRIPTION</label>
+                <textarea 
+                  required 
+                  className="input-premium" 
+                  value={editingTest.description} 
+                  onChange={(e) => setEditingTest({...editingTest, description: e.target.value})} 
+                  placeholder="Provide a comprehensive overview of the module contents..."
+                  style={{ minHeight: '100px', resize: 'vertical' }}
+                />
+              </div>
+
+              <button type="submit" className="primary-gradient" style={{ padding: '1.2rem', borderRadius: '12px', color: 'white', fontWeight: 800, marginTop: '1rem' }}>
+                Save Settings
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* Test Details Modal */}
       {isDetailsModalOpen && detailedTest && (
         <div style={{ 
@@ -679,8 +820,18 @@ const AdminTests = () => {
                 <div className="badge-tonal" style={{ background: 'var(--primary-container)', color: 'var(--primary)', fontWeight: 800 }}>{detailedTest.category}</div>
                 <div className="badge-tonal" style={{ background: 'var(--surface-high)', color: 'var(--on-surface)', fontWeight: 800 }}>{detailedTest.difficulty}</div>
                 <div className="badge-tonal" style={{ background: 'var(--surface-high)', color: 'var(--on-surface)', fontWeight: 800 }}>{detailedTest.duration} mins</div>
+                <div className="badge-tonal" style={{ background: 'var(--success-container)', color: 'var(--success)', fontWeight: 800 }}>★ {detailedTest.rating || 5}/5</div>
               </div>
-              <h2 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '1rem' }}>{detailedTest.title}</h2>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                <h2 style={{ fontSize: '2.5rem', fontWeight: 800 }}>{detailedTest.title}</h2>
+                <button 
+                  onClick={() => { setEditingTest(detailedTest); setIsEditModalOpen(true); }}
+                  className="card-tonal"
+                  style={{ padding: '0.6rem 1rem', borderRadius: '8px', border: '1px solid var(--outline-variant)', fontWeight: 800, fontSize: '0.8rem', cursor: 'pointer', background: 'var(--surface-high)', color: 'var(--on-surface)' }}
+                >
+                  Edit Settings
+                </button>
+              </div>
               <p style={{ color: 'var(--on-surface-variant)', fontSize: '1.1rem', lineHeight: 1.6 }}>{detailedTest.description}</p>
             </header>
 

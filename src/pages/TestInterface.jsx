@@ -15,13 +15,14 @@ const TestInterface = () => {
   const { user } = useAuth();
   const [testInfo, setTestInfo] = useState(null);
   const [questions, setQuestions] = useState([]);
-  const [currentQuestion, setCurrentQuestion] = useState(0); 
+  const [currentQuestion, setCurrentQuestion] = useState(0);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(0); 
+  const [timeLeft, setTimeLeft] = useState(0);
   const [answers, setAnswers] = useState({});
   const [loading, setLoading] = useState(true);
   const [startTime] = useState(Date.now());
   const [attemptBlocked, setAttemptBlocked] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Enable screen capture prevention for test-taking
   useScreenCapturePrevention(
@@ -40,7 +41,7 @@ const TestInterface = () => {
 
   const handleMalpractice = async (reason) => {
     if (isSubmitted) return;
-    
+
     const timeTaken = Math.round((Date.now() - startTime) / 1000);
     try {
       await api.results.reportMalpractice({
@@ -94,22 +95,66 @@ const TestInterface = () => {
     }
   }, [timeLeft, isSubmitted, loading]);
 
-  const handleSelectOption = (questionId, optionIndex) => {
-    setAnswers({ ...answers, [questionId]: optionIndex });
+  const handleSelectOption = (questionId, optionIndex, value = null) => {
+    const q = questions.find(q => q._id === questionId);
+    const qType = q?.questionType || 'single';
+
+    if (qType === 'multiple_choice') {
+      const current = answers[questionId] || [];
+      const newAnswers = current.includes(optionIndex)
+        ? current.filter(idx => idx !== optionIndex)
+        : [...current, optionIndex];
+      setAnswers({ ...answers, [questionId]: newAnswers });
+    } else if (qType === 'true_false_matrix') {
+      const current = answers[questionId] || {};
+      setAnswers({ ...answers, [questionId]: { ...current, [optionIndex]: value } });
+    } else {
+      setAnswers({ ...answers, [questionId]: optionIndex });
+    }
   };
 
   const handleSubmit = async (finalWarnings = 0) => {
-    if (isSubmitted) return;
+    if (isSubmitted || isSubmitting) return;
+    setIsSubmitting(true);
 
     const timeTaken = Math.round((Date.now() - startTime) / 1000);
-    const submissionAnswers = questions.map(q => ({
-      questionId: q._id,
-      selectedOption: answers[q._id] !== undefined ? answers[q._id] : null,
-      isCorrect: answers[q._id] === q.correctAnswer
-    }));
+    const submissionAnswers = questions.map(q => {
+      const qType = q.questionType || 'single';
+      let isCorrect = false;
+      const selected = answers[q._id];
+
+      if (qType === 'multiple_choice') {
+        const correctAnswers = q.multipleCorrectAnswers || [];
+        const userAnswers = selected || [];
+        if (correctAnswers.length === userAnswers.length && correctAnswers.every(v => userAnswers.includes(v))) {
+          isCorrect = true;
+        }
+      } else if (qType === 'true_false_matrix') {
+        const correctAnswers = q.trueFalseAnswers || [];
+        const userAnswers = selected || {};
+        let allMatch = true;
+        for (let i = 0; i < q.options.length; i++) {
+          if (userAnswers[i] !== correctAnswers[i]) {
+            allMatch = false;
+            break;
+          }
+        }
+        if (Object.keys(userAnswers).length === q.options.length && allMatch) {
+          isCorrect = true;
+        }
+      } else {
+        isCorrect = selected === q.correctAnswer;
+      }
+
+      return {
+        questionId: q._id,
+        selectedOption: selected !== undefined ? selected : null,
+        isCorrect
+      };
+    });
 
     const correctCount = submissionAnswers.filter(a => a.isCorrect).length;
-    const incorrectCount = submissionAnswers.filter(a => !a.isCorrect && a.selectedOption !== null).length;
+    const incorrectCount = submissionAnswers.filter(a => !a.isCorrect && a.selectedOption !== null && (!Array.isArray(a.selectedOption) || a.selectedOption.length > 0) && (typeof a.selectedOption !== 'object' || Object.keys(a.selectedOption).length > 0)).length;
     const score = correctCount * 4 - incorrectCount * 1;
 
     const payload = {
@@ -125,6 +170,7 @@ const TestInterface = () => {
       await api.results.submit(payload);
       setIsSubmitted(true);
     } catch (error) {
+      setIsSubmitting(false);
       console.error('Submission error', error);
       if (error.message?.toLowerCase().includes('max 2 attempts') || error.message?.toLowerCase().includes('not allowed')) {
         alert('You have already used all your attempts for this test.');
@@ -160,10 +206,10 @@ const TestInterface = () => {
           <p style={{ color: 'var(--on-surface-variant)', fontSize: '1.2rem', marginBottom: '3rem' }}>
             Your session has been recorded. Performance analysis for Identity {user?._id?.slice(-5).toUpperCase()} is being generated.
           </p>
-          <Link to="/results" className="primary-gradient" style={{ 
-            padding: '1.2rem 3rem', 
-            borderRadius: 'var(--radius-md)', 
-            color: 'white', 
+          <Link to="/results" className="primary-gradient" style={{
+            padding: '1.2rem 3rem',
+            borderRadius: 'var(--radius-md)',
+            color: 'white',
             fontWeight: 800,
             fontSize: '1.1rem'
           }}>
@@ -177,7 +223,7 @@ const TestInterface = () => {
   if (loading) {
     return (
       <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
-        <header style={{ 
+        <header style={{
           height: '100px',
           background: 'var(--on-surface)',
           borderRadius: 'var(--radius-lg)',
@@ -200,12 +246,12 @@ const TestInterface = () => {
   return (
     <div style={{ maxWidth: '1400px', margin: '0 auto', userSelect: 'none', position: 'relative' }}>
       {/* Proctoring Component */}
-      <Proctoring 
-        testId={testId} 
-        userId={user?._id} 
-        isAdmin={user?.role === 'admin'} 
-        isSubmitted={isSubmitted} 
-        onTerminate={(reason) => handleMalpractice(reason)} 
+      <Proctoring
+        testId={testId}
+        userId={user?._id}
+        isAdmin={user?.role === 'admin'}
+        isSubmitted={isSubmitted}
+        onTerminate={(reason) => handleMalpractice(reason)}
       />
 
       {/* Dynamic Watermark Overlay */}
@@ -225,9 +271,9 @@ const TestInterface = () => {
         userSelect: 'none'
       }}>
         {Array.from({ length: 24 }).map((_, i) => (
-          <div key={i} style={{ 
-            fontSize: '1.1rem', 
-            fontWeight: 900, 
+          <div key={i} style={{
+            fontSize: '1.1rem',
+            fontWeight: 900,
             color: 'var(--on-surface)',
             whiteSpace: 'nowrap',
             display: 'flex',
@@ -240,10 +286,10 @@ const TestInterface = () => {
       </div>
 
       {/* Exam Header */}
-      <header style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
+      <header style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
         marginBottom: '3rem',
         padding: '1.5rem 2rem',
         background: 'var(--on-surface)',
@@ -259,20 +305,20 @@ const TestInterface = () => {
             <div style={{ fontSize: '0.75rem', opacity: 0.7, letterSpacing: '0.05em' }}>SESSION ID: {testId?.slice(-8).toUpperCase()}-{user?._id?.slice(-5).toUpperCase()}</div>
           </div>
         </div>
-        
+
         <div style={{ display: 'flex', alignItems: 'center', gap: '3rem' }}>
           <div style={{ textAlign: 'center' }}>
             <div style={{ fontSize: '0.7rem', opacity: 0.7, marginBottom: '0.2rem', textTransform: 'uppercase' }}>Time Remaining</div>
             <div style={{ fontSize: '1.5rem', fontWeight: 800, fontFamily: 'monospace' }}>{formatTime(timeLeft)}</div>
           </div>
-          <button 
+          <button
             onClick={() => handleSubmit()}
-            style={{ 
-              background: 'var(--error)', 
-              color: 'white', 
-              padding: '0.8rem 1.5rem', 
-              borderRadius: 'var(--radius-md)', 
-              fontWeight: 800 
+            style={{
+              background: 'var(--error)',
+              color: 'white',
+              padding: '0.8rem 1.5rem',
+              borderRadius: 'var(--radius-md)',
+              fontWeight: 800
             }}
           >
             End Session
@@ -280,10 +326,10 @@ const TestInterface = () => {
         </div>
       </header>
 
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))', 
-        gap: '2rem' 
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))',
+        gap: '2rem'
       }}>
         {/* Left Sidebar: Question Palette */}
         <aside style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
@@ -291,29 +337,43 @@ const TestInterface = () => {
             <h3 style={{ fontSize: '0.95rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <Grid size={18} color="var(--primary)" /> Question Palette
             </h3>
-            
+
             <div style={{ marginBottom: '2rem' }}>
               <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--on-surface-variant)', marginBottom: '1rem', textTransform: 'uppercase' }}>Assessment Questions</div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '0.5rem' }}>
-                {questions.map((q, idx) => (
-                  <button 
-                    key={q._id} 
-                    onClick={() => setCurrentQuestion(idx)}
-                    style={{ 
-                      width: '100%',
-                      aspectRatio: '1', 
-                      borderRadius: '8px', 
-                      fontSize: '0.8rem', 
-                      fontWeight: 700,
-                      background: idx === currentQuestion ? 'var(--primary)' : (answers[q._id] !== undefined ? 'var(--primary-container)' : 'var(--surface-low)'),
-                      color: idx === currentQuestion ? 'white' : 'var(--on-surface)',
-                      border: 'none',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    {idx + 1 < 10 ? `0${idx + 1}` : idx + 1}
-                  </button>
-                ))}
+                {questions.map((q, idx) => {
+                  let isAnswered = false;
+                  const ans = answers[q._id];
+                  if (ans !== undefined) {
+                    if (Array.isArray(ans)) {
+                      isAnswered = ans.length > 0;
+                    } else if (typeof ans === 'object' && ans !== null) {
+                      isAnswered = Object.keys(ans).length > 0;
+                    } else {
+                      isAnswered = true;
+                    }
+                  }
+
+                  return (
+                    <button
+                      key={q._id}
+                      onClick={() => setCurrentQuestion(idx)}
+                      style={{
+                        width: '100%',
+                        aspectRatio: '1',
+                        borderRadius: '8px',
+                        fontSize: '0.8rem',
+                        fontWeight: 700,
+                        background: idx === currentQuestion ? 'var(--primary)' : (isAnswered ? 'var(--primary-container)' : 'var(--surface-low)'),
+                        color: idx === currentQuestion ? 'white' : 'var(--on-surface)',
+                        border: 'none',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {idx + 1 < 10 ? `0${idx + 1}` : idx + 1}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
@@ -330,27 +390,59 @@ const TestInterface = () => {
             </div>
 
             <div style={{ flex: 1 }}>
+              {currentQ?.questionType === 'multiple_choice' && (
+                <div style={{
+                  display: 'inline-block',
+                  background: 'var(--primary-container)',
+                  color: 'var(--primary)',
+                  padding: '0.4rem 0.8rem',
+                  borderRadius: '20px',
+                  fontSize: '0.8rem',
+                  fontWeight: 800,
+                  marginBottom: '1rem',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em'
+                }}>
+                  Multiple Choice (Select one or more)
+                </div>
+              )}
+              {currentQ?.questionType === 'true_false_matrix' && (
+                <div style={{
+                  display: 'inline-block',
+                  background: 'var(--primary-container)',
+                  color: 'var(--primary)',
+                  padding: '0.4rem 0.8rem',
+                  borderRadius: '20px',
+                  fontSize: '0.8rem',
+                  fontWeight: 800,
+                  marginBottom: '1rem',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em'
+                }}>
+                  True/False Matrix (Select True or False for each)
+                </div>
+              )}
               <p style={{ fontSize: '1.4rem', lineHeight: 1.6, color: 'var(--on-surface)', marginBottom: (currentQ?.images && currentQ.images.length > 0) ? '2rem' : '3rem' }}>
                 {currentQ?.text}
               </p>
 
-              
+
               {currentQ?.images && currentQ.images.length > 0 && (
                 <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '3rem' }}>
                   {currentQ.images.map((img, idx) => (
-                    <img 
+                    <img
                       key={idx}
-                      src={img} 
-                      alt="Question" 
-                      style={{ 
-                        width: '100%', 
-                        maxHeight: '400px', 
-                        objectFit: 'contain', 
-                        borderRadius: '16px', 
+                      src={img}
+                      alt="Question"
+                      style={{
+                        width: '100%',
+                        maxHeight: '400px',
+                        objectFit: 'contain',
+                        borderRadius: '16px',
                         background: 'white',
                         border: '1px solid var(--outline-variant)',
                         padding: '8px'
-                      }} 
+                      }}
                     />
                   ))}
                 </div>
@@ -358,88 +450,139 @@ const TestInterface = () => {
 
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {currentQ?.options?.map((option, index) => (
-                  <button
-                    key={index}
-                    onClick={() => handleSelectOption(currentQ._id, index)}
-                    className={`card-tonal ${answers[currentQ._id] === index ? 'active' : ''}`}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '1.5rem',
-                      padding: '1.5rem 2rem',
-                      width: '100%',
-                      textAlign: 'left',
-                      border: answers[currentQ._id] === index ? '2px solid var(--primary)' : '1px solid var(--surface-high)',
-                      background: answers[currentQ._id] === index ? 'var(--primary-container)' : 'var(--surface-lowest)',
-                      borderRadius: '16px',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                      position: 'relative',
-                      overflow: 'hidden'
-                    }}
-                  >
-                    <div style={{
-                      width: '32px',
-                      height: '32px',
-                      borderRadius: '50%',
-                      background: answers[currentQ._id] === index ? 'var(--primary)' : 'var(--surface-high)',
-                      color: answers[currentQ._id] === index ? 'white' : 'var(--on-surface)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontWeight: 800,
-                      fontSize: '0.85rem',
-                      flexShrink: 0
-                    }}>
-                      {String.fromCharCode(65 + index)}
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: 600, fontSize: '1.05rem', color: 'var(--on-surface)', marginBottom: (option.images && option.images.length > 0) ? '1rem' : 0 }}>
-                        {option.text}
+                {currentQ?.options?.map((option, index) => {
+                  const qType = currentQ.questionType || 'single';
+                  let isSelected = false;
+                  let matrixValue = null;
+
+                  if (qType === 'multiple_choice') {
+                    isSelected = (answers[currentQ._id] || []).includes(index);
+                  } else if (qType === 'true_false_matrix') {
+                    matrixValue = (answers[currentQ._id] || {})[index];
+                    isSelected = matrixValue !== undefined;
+                  } else {
+                    isSelected = answers[currentQ._id] === index;
+                  }
+
+                  return (
+                    <div
+                      key={index}
+                      className={`card-tonal ${isSelected && qType !== 'true_false_matrix' ? 'active' : ''}`}
+                      onClick={() => {
+                        if (qType !== 'true_false_matrix') handleSelectOption(currentQ._id, index);
+                      }}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '1.5rem',
+                        padding: '1.5rem 2rem',
+                        width: '100%',
+                        textAlign: 'left',
+                        border: isSelected && qType !== 'true_false_matrix' ? '2px solid var(--primary)' : '1px solid var(--surface-high)',
+                        background: isSelected && qType !== 'true_false_matrix' ? 'var(--primary-container)' : 'var(--surface-lowest)',
+                        borderRadius: '16px',
+                        cursor: qType === 'true_false_matrix' ? 'default' : 'pointer',
+                        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                        position: 'relative',
+                        overflow: 'hidden'
+                      }}
+                    >
+                      <div style={{
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: '50%',
+                        background: isSelected && qType !== 'true_false_matrix' ? 'var(--primary)' : 'var(--surface-high)',
+                        color: isSelected && qType !== 'true_false_matrix' ? 'white' : 'var(--on-surface)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontWeight: 800,
+                        fontSize: '0.85rem',
+                        flexShrink: 0
+                      }}>
+                        {String.fromCharCode(65 + index)}
                       </div>
-                      
-                      {option.images && option.images.length > 0 && (
-                        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.5rem' }}>
-                          {option.images.map((img, i) => (
-                            <img 
-                              key={i}
-                              src={img} 
-                              alt={`Option ${index}`} 
-                              style={{ 
-                                width: '100%', 
-                                maxHeight: '200px', 
-                                objectFit: 'contain', 
-                                borderRadius: '8px',
-                                background: 'white',
-                                padding: '4px'
-                              }} 
-                            />
-                          ))}
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontWeight: 600, fontSize: '1.05rem', color: 'var(--on-surface)', marginBottom: (option.images && option.images.length > 0) ? '1rem' : 0 }}>
+                          {option.text}
+                        </div>
+
+                        {option.images && option.images.length > 0 && (
+                          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.5rem' }}>
+                            {option.images.map((img, i) => (
+                              <img
+                                key={i}
+                                src={img}
+                                alt={`Option ${index}`}
+                                style={{
+                                  width: '100%',
+                                  maxHeight: '200px',
+                                  objectFit: 'contain',
+                                  borderRadius: '8px',
+                                  background: 'white',
+                                  padding: '4px'
+                                }}
+                              />
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {qType === 'true_false_matrix' && (
+                        <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0 }} onClick={(e) => e.stopPropagation()}>
+                          <button
+                            onClick={() => handleSelectOption(currentQ._id, index, true)}
+                            style={{
+                              padding: '0.6rem 1.2rem',
+                              borderRadius: '8px',
+                              fontWeight: 800,
+                              fontSize: '0.85rem',
+                              border: matrixValue === true ? '2px solid var(--primary)' : '1px solid var(--outline-variant)',
+                              background: matrixValue === true ? 'var(--primary-container)' : 'var(--surface)',
+                              color: matrixValue === true ? 'var(--primary)' : 'var(--on-surface-variant)',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            True
+                          </button>
+                          <button
+                            onClick={() => handleSelectOption(currentQ._id, index, false)}
+                            style={{
+                              padding: '0.6rem 1.2rem',
+                              borderRadius: '8px',
+                              fontWeight: 800,
+                              fontSize: '0.85rem',
+                              border: matrixValue === false ? '2px solid var(--error)' : '1px solid var(--outline-variant)',
+                              background: matrixValue === false ? 'var(--error-container)' : 'var(--surface)',
+                              color: matrixValue === false ? 'var(--error)' : 'var(--on-surface-variant)',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            False
+                          </button>
                         </div>
                       )}
-
                     </div>
-                  </button>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '4rem', paddingTop: '2rem', borderTop: '1px solid var(--outline-variant)' }}>
-              <button 
+              <button
                 onClick={() => setCurrentQuestion(prev => Math.max(0, prev - 1))}
                 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--on-surface-variant)', background: 'none' }}
               >
                 <ChevronLeft size={20} /> Previous
               </button>
-              <button 
+              <button
                 onClick={handleSaveAndNext}
-                className="primary-gradient" 
+                className="primary-gradient"
                 style={{ padding: '1rem 2.5rem', borderRadius: 'var(--radius-md)', color: 'white', fontWeight: 800 }}
               >
                 {currentQuestion === questions.length - 1 ? 'Submit' : 'Save and Next'}
               </button>
-              <button 
+              <button
                 onClick={() => setCurrentQuestion(prev => Math.min(questions.length - 1, prev + 1))}
                 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--primary)', background: 'none' }}
               >
