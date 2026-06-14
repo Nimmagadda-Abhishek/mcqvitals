@@ -49,16 +49,27 @@ const Sidebar = () => {
         <img src="/logo.png" alt="Mcqvitals Logo" style={{ height: '56px', borderRadius: '12px', objectFit: 'contain' }} />
       </div>
 
-      <nav style={{ display: 'flex', flexDirection: 'inherit', gap: '1.5rem', flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <nav style={{ 
+        display: 'flex', 
+        flexDirection: 'inherit', 
+        gap: '0.8rem', 
+        flex: 1, 
+        justifyContent: 'flex-start', 
+        alignItems: 'center',
+        overflowX: 'auto',
+        scrollbarWidth: 'none',
+        msOverflowStyle: 'none'
+      }}>
         {navItems.map((item) => (
           <NavLink
             key={item.path}
             to={item.path}
             title={item.label}
             style={({ isActive }) => ({
-              width: '48px',
-              height: '48px',
-              borderRadius: '14px',
+              width: '44px',
+              height: '44px',
+              flexShrink: 0,
+              borderRadius: '12px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -72,7 +83,7 @@ const Sidebar = () => {
         ))}
       </nav>
 
-      <div style={{ display: 'flex', flexDirection: 'inherit', gap: '1.5rem', marginTop: 'auto', alignItems: 'center' }}>
+      <div style={{ display: 'flex', flexDirection: 'inherit', gap: '0.8rem', marginTop: 'auto', alignItems: 'center' }}>
         {user?.role !== 'admin' && (
           <NavLink 
             to="/settings"

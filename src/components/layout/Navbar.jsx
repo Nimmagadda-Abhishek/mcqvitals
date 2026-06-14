@@ -21,7 +21,7 @@ const Navbar = () => {
     }}>
       <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
         <img src="/logo.png" alt="Mcqvitals Logo" style={{ height: '48px', borderRadius: '8px', objectFit: 'contain' }} />
-        <span style={{ 
+        <span className="mobile-hide" style={{ 
           fontFamily: 'var(--font-display)', 
           fontWeight: 800, 
           fontSize: '1rem',

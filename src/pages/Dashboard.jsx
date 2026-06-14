@@ -148,7 +148,7 @@ const Dashboard = () => {
         <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '2.5rem' : '4rem' }}>
 
           {/* Stats Overview */}
-          <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1.5rem' }}>
+          <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: '1.5rem' }}>
             {dashboardStats.map((stat, i) => (
               <div key={i} className="card-tonal" style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem', border: '1px solid transparent' }}>
                 <div style={{
@@ -180,7 +180,7 @@ const Dashboard = () => {
               <h2 style={{ fontSize: isMobile ? '1.5rem' : '1.75rem' }}>Recommended Modules</h2>
               <Link to="/test" style={{ color: 'var(--primary)', fontWeight: 800, fontSize: '0.9rem', textDecoration: 'none' }}>View Full Catalog</Link>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '2rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))', gap: '2rem' }}>
               {recommendedTests.map((test) => (
                 <div key={test._id} className="card-tonal" style={{ position: 'relative', border: '1px solid var(--outline-variant)' }}>
                   <div style={{

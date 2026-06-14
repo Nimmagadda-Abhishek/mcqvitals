@@ -151,7 +151,20 @@ const AdminResources = () => {
       );
     }
 
-    // Default: document (PDF, DOCX, PPTX, etc.) — Google Docs Viewer
+    // Check if it's a PDF to view natively
+    const isPdf = resource.url.toLowerCase().endsWith('.pdf') || resource.url.toLowerCase().includes('.pdf?');
+
+    if (isPdf) {
+      return (
+        <iframe
+          src={resource.url}
+          style={{ width: '100%', height: '100%', border: 'none' }}
+          title={resource.title}
+        />
+      );
+    }
+
+    // Default: document (DOCX, PPTX, etc.) — Google Docs Viewer
     return (
       <iframe
         src={`https://docs.google.com/viewer?url=${encodeURIComponent(resource.url)}&embedded=true`}

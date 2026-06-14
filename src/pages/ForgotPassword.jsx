@@ -30,17 +30,14 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div
-      style={{
-        minHeight: 'calc(100vh - 72px)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: 'radial-gradient(circle at top right, #eff4ff 0%, #f8f9ff 100%)',
-        padding: '2rem',
-      }}
-    >
-      <div className="premium-card" style={{ maxWidth: '520px', width: '100%', padding: '3rem' }}>
+    <div className="padding-responsive" style={{
+      minHeight: 'calc(100vh - 72px)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: 'radial-gradient(circle at top right, #eff4ff 0%, #f8f9ff 100%)'
+    }}>
+      <div className="premium-card" style={{ maxWidth: '440px', width: '100%' }}>
         <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
           <img src="/logo.png" alt="Mcqvitals Logo" style={{ height: '72px', borderRadius: '12px', marginBottom: '1.5rem', objectFit: 'contain' }} />
           <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Reset Password</h1>

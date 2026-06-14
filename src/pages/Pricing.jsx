@@ -62,7 +62,7 @@ const Pricing = () => {
 
     try {
       setLoadingPlan(planId);
-      
+
       if (planId === 'free') {
         alert('You are already on the Free Tier or it is active by default.');
         navigate('/dashboard');
@@ -85,26 +85,27 @@ const Pricing = () => {
         orderData = await api.subscription.createOrder(planId);
       }
 
-      // 2. Initialize Razorpay
+      // 2. Initialize Razorpay Checkout for Subscriptions
       const options = {
         key: orderData.key,
         amount: orderData.amount,
         currency: orderData.currency,
-        name: 'Test Platform',
+        name: 'McqVitals',
         description: `${planId === 'monthly' ? 'Monthly' : 'Yearly'} Pro Subscription`,
-        order_id: orderData.orderId,
+        image: window.location.origin + '/logo.png',
+        subscription_id: orderData.orderId, // orderData.orderId actually holds the subscription ID now
         handler: async function (response) {
           try {
             const verifyData = await api.subscription.verifyPayment({
-              razorpay_order_id: response.razorpay_order_id,
+              razorpay_subscription_id: response.razorpay_subscription_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
               plan: planId
             });
-            
+
             alert('Payment successful! Your subscription is active.');
             // Quick refresh to update user context
-            window.location.reload(); 
+            window.location.reload();
           } catch (err) {
             console.error(err);
             alert(`Payment verification failed: ${err.message || 'Error verifying payment'}`);
@@ -174,87 +175,89 @@ const Pricing = () => {
           else if (isUpgrade) buttonText = 'Upgrade Now';
 
           return (
-          <div 
-            key={plan.id}
-            style={{
-              background: plan.popular ? 'var(--primary-container)' : 'var(--surface)',
-              border: `2px solid ${plan.popular ? 'var(--primary)' : 'var(--outline-variant)'}`,
-              borderRadius: '24px',
-              padding: '2.5rem',
-              width: '100%',
-              maxWidth: '400px',
-              position: 'relative',
-              boxShadow: plan.popular ? '0 20px 40px rgba(59, 130, 246, 0.15)' : 'none',
-              transform: plan.popular ? 'scale(1.05)' : 'scale(1)',
-              transition: 'transform 0.3s ease'
-            }}
-          >
-            {plan.popular && (
-              <div style={{
-                position: 'absolute',
-                top: '-15px',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                background: 'var(--primary)',
-                color: 'white',
-                padding: '0.4rem 1rem',
-                borderRadius: '20px',
-                fontSize: '0.85rem',
-                fontWeight: 'bold',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.4rem'
-              }}>
-                <Star size={14} fill="white" /> Most Popular
-              </div>
-            )}
-
-            <h2 style={{ fontSize: '1.5rem', color: 'var(--on-surface)', marginBottom: '0.5rem' }}>{plan.name}</h2>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.4rem', marginBottom: '2rem' }}>
-              <span style={{ fontSize: '2.5rem', fontWeight: 800 }}>₹{plan.price}</span>
-              <span style={{ color: 'var(--on-surface-variant)', fontWeight: 600 }}>{plan.period}</span>
-            </div>
-
-            <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 2.5rem 0', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              {plan.features.map((feature, i) => (
-                <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', color: 'var(--on-surface)', fontWeight: 500 }}>
-                  <div style={{ background: 'var(--primary)', color: 'white', borderRadius: '50%', padding: '2px' }}>
-                    <Check size={14} strokeWidth={3} />
-                  </div>
-                  {feature}
-                </li>
-              ))}
-            </ul>
-
-            <button
-              onClick={() => handleSubscribe(plan.id)}
-              disabled={isDisabled}
+            <div
+              key={plan.id}
               style={{
+                background: plan.popular ? 'var(--primary-container)' : 'var(--surface)',
+                border: `2px solid ${plan.popular ? 'var(--primary)' : 'var(--outline-variant)'}`,
+                borderRadius: '24px',
+                padding: '2.5rem',
                 width: '100%',
-                padding: '1.2rem',
-                borderRadius: '12px',
-                background: isDisabled ? 'var(--surface-high)' : (plan.popular ? 'var(--primary)' : 'var(--surface-high)'),
-                color: isDisabled ? 'var(--on-surface-variant)' : (plan.popular ? 'white' : 'var(--on-surface)'),
-                border: isDisabled ? '1px solid var(--outline-variant)' : (plan.popular ? 'none' : '1px solid var(--outline)'),
-                fontSize: '1.1rem',
-                fontWeight: 700,
-                cursor: isDisabled ? 'not-allowed' : 'pointer',
-                transition: 'all 0.2s ease',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                gap: '0.5rem',
-                opacity: isDisabled ? 0.7 : 1
+                maxWidth: '400px',
+                position: 'relative',
+                boxShadow: plan.popular ? '0 20px 40px rgba(59, 130, 246, 0.15)' : 'none',
+                /* Let CSS handle scaling if needed, or remove it so it fits mobile */
+                transform: 'scale(1)', 
+                transition: 'transform 0.3s ease'
               }}
             >
-              {loadingPlan === plan.id ? (
-                <span className="spinner-small" style={{ borderColor: plan.popular ? 'white' : 'var(--primary)', borderTopColor: 'transparent' }} />
-              ) : (
-                <>{buttonText} {!isDisabled && <Shield size={18} />}</>
+              {plan.popular && (
+                <div style={{
+                  position: 'absolute',
+                  top: '-15px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  background: 'var(--primary)',
+                  color: 'white',
+                  padding: '0.4rem 1rem',
+                  borderRadius: '20px',
+                  fontSize: '0.85rem',
+                  fontWeight: 'bold',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.4rem'
+                }}>
+                  <Star size={14} fill="white" /> Most Popular
+                </div>
               )}
-            </button>
-          </div>
-        )})}
+
+              <h2 style={{ fontSize: '1.5rem', color: 'var(--on-surface)', marginBottom: '0.5rem' }}>{plan.name}</h2>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.4rem', marginBottom: '2rem' }}>
+                <span style={{ fontSize: '2.5rem', fontWeight: 800 }}>₹{plan.price}</span>
+                <span style={{ color: 'var(--on-surface-variant)', fontWeight: 600 }}>{plan.period}</span>
+              </div>
+
+              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 2.5rem 0', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {plan.features.map((feature, i) => (
+                  <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', color: 'var(--on-surface)', fontWeight: 500 }}>
+                    <div style={{ background: 'var(--primary)', color: 'white', borderRadius: '50%', padding: '2px' }}>
+                      <Check size={14} strokeWidth={3} />
+                    </div>
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+
+              <button
+                onClick={() => handleSubscribe(plan.id)}
+                disabled={isDisabled}
+                style={{
+                  width: '100%',
+                  padding: '1.2rem',
+                  borderRadius: '12px',
+                  background: isDisabled ? 'var(--surface-high)' : (plan.popular ? 'var(--primary)' : 'var(--surface-high)'),
+                  color: isDisabled ? 'var(--on-surface-variant)' : (plan.popular ? 'white' : 'var(--on-surface)'),
+                  border: isDisabled ? '1px solid var(--outline-variant)' : (plan.popular ? 'none' : '1px solid var(--outline)'),
+                  fontSize: '1.1rem',
+                  fontWeight: 700,
+                  cursor: isDisabled ? 'not-allowed' : 'pointer',
+                  transition: 'all 0.2s ease',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  opacity: isDisabled ? 0.7 : 1
+                }}
+              >
+                {loadingPlan === plan.id ? (
+                  <span className="spinner-small" style={{ borderColor: plan.popular ? 'white' : 'var(--primary)', borderTopColor: 'transparent' }} />
+                ) : (
+                  <>{buttonText} {!isDisabled && <Shield size={18} />}</>
+                )}
+              </button>
+            </div>
+          )
+        })}
       </div>
 
       <div style={{ textAlign: 'center', marginTop: '4rem', color: 'var(--on-surface-variant)', fontSize: '0.9rem' }}>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { User, Mail, Lock, ArrowRight, ShieldCheck } from 'lucide-react';
+import { User, Mail, Lock, ArrowRight, ShieldCheck, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const Register = () => {
@@ -12,6 +12,7 @@ const Register = () => {
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
@@ -29,15 +30,14 @@ const Register = () => {
   };
 
   return (
-    <div style={{
+    <div className="padding-responsive" style={{
       minHeight: 'calc(100vh - 72px)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      background: 'radial-gradient(circle at top right, #eff4ff 0%, #f8f9ff 100%)',
-      padding: '2rem'
+      background: 'radial-gradient(circle at top right, #eff4ff 0%, #f8f9ff 100%)'
     }}>
-      <div className="premium-card" style={{ maxWidth: '500px', width: '100%', padding: '3rem' }}>
+      <div className="premium-card" style={{ maxWidth: '500px', width: '100%' }}>
         <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
           <img src="/logo.png" alt="Mcqvitals Logo" style={{ height: '72px', borderRadius: '12px', marginBottom: '1.5rem', objectFit: 'contain' }} />
           <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Create Account</h1>
@@ -112,14 +112,14 @@ const Register = () => {
           <div style={{ position: 'relative' }}>
             <Lock size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--on-surface-variant)' }} />
             <input 
-              type="password" 
+              type={showPassword ? "text" : "password"}
               placeholder="Create Password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               style={{
                 width: '100%',
-                padding: '1rem 1rem 1rem 3rem',
+                padding: '1rem 3rem 1rem 3rem',
                 borderRadius: 'var(--radius-md)',
                 border: '1px solid var(--outline-variant)',
                 background: 'var(--surface-low)',
@@ -127,6 +127,13 @@ const Register = () => {
                 outline: 'none'
               }}
             />
+            <button 
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              style={{ position: 'absolute', right: '1rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--on-surface-variant)', padding: 0, display: 'flex', alignItems: 'center' }}
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', padding: '0.5rem 0' }}>
