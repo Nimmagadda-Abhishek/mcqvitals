@@ -292,7 +292,7 @@ const Dashboard = () => {
                   </Link>
                 </div>
               )) : (
-                <div className="section-tonal" style={{ textAlign: 'center', padding: '4rem', border: '1px dashed var(--outline-variant)' }}>
+                <div className="section-tonal padding-responsive" style={{ textAlign: 'center', border: '1px dashed var(--outline-variant)' }}>
                   <p style={{ color: 'var(--on-surface-variant)', fontWeight: 600 }}>No assessment history discovered yet.</p>
                 </div>
               )}

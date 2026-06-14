@@ -175,9 +175,9 @@ const ResultsPage = () => {
             ))}
           </div>
         ) : (
-          <div className="card-tonal" style={{ textAlign: 'center', padding: '4rem' }}>
+          <div className="card-tonal padding-responsive" style={{ textAlign: 'center' }}>
             <p style={{ color: 'var(--on-surface-variant)', marginBottom: '1.5rem' }}>No assessments completed yet.</p>
-            <Link to="/test" className="primary-gradient" style={{ padding: '0.8rem 2rem', borderRadius: '8px', color: 'white', fontWeight: 700, textDecoration: 'none' }}>
+            <Link to="/test" className="primary-gradient" style={{ display: 'inline-block', padding: '0.8rem 2rem', borderRadius: '8px', color: 'white', fontWeight: 700, textDecoration: 'none' }}>
               Launch Your First Module
             </Link>
           </div>

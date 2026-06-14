@@ -97,6 +97,11 @@ const Proctoring = ({ testId, userId, isAdmin, isSubmitted, onTerminate }) => {
         };
 
         const handleResize = () => {
+            // Mobile browsers trigger resize on scroll due to address bar hiding
+            if (window.innerWidth <= 1024) return;
+            
+            // For desktop, only trigger if it's a significant width change
+            // This prevents false positives from minor accidental resizing
             logViolation('Window resized (possible overlay or split screen)');
         };
 

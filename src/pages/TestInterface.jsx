@@ -23,8 +23,22 @@ const TestInterface = () => {
   const [startTime] = useState(Date.now());
   const [attemptBlocked, setAttemptBlocked] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [hasStarted, setHasStarted] = useState(false);
 
   // Enable screen capture prevention for test-taking
+  const handleStartTest = () => {
+    // Attempt fullscreen
+    if (document.documentElement.requestFullscreen) {
+      document.documentElement.requestFullscreen().catch(err => console.log('Fullscreen failed:', err));
+    }
+    // Trap back button
+    window.history.pushState(null, '', window.location.href);
+    window.onpopstate = function () {
+      window.history.go(1);
+    };
+    setHasStarted(true);
+  };
+
   useScreenCapturePrevention(
     (reason) => {
       console.warn('Screen capture attempt detected during test:', reason);
@@ -197,8 +211,8 @@ const TestInterface = () => {
 
   if (isSubmitted) {
     return (
-      <div style={{ maxWidth: '800px', margin: '6rem auto', textAlign: 'center' }}>
-        <div className="section-tonal" style={{ padding: '4rem' }}>
+      <div style={{ maxWidth: '800px', margin: '6rem auto', textAlign: 'center', padding: '0 1rem' }}>
+        <div className="section-tonal padding-responsive">
           <div className="primary-gradient" style={{ width: '80px', height: '80px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 2rem' }}>
             <Send size={40} color="white" />
           </div>
@@ -207,6 +221,7 @@ const TestInterface = () => {
             Your session has been recorded. Performance analysis for Identity {user?._id?.slice(-5).toUpperCase()} is being generated.
           </p>
           <Link to="/results" className="primary-gradient" style={{
+            display: 'inline-block',
             padding: '1.2rem 3rem',
             borderRadius: 'var(--radius-md)',
             color: 'white',
@@ -242,6 +257,33 @@ const TestInterface = () => {
   }
 
   const currentQ = questions[currentQuestion];
+
+  if (!hasStarted) {
+    return (
+      <div style={{ maxWidth: '800px', margin: '6rem auto', textAlign: 'center', padding: '0 1rem' }}>
+        <div className="section-tonal padding-responsive">
+          <div className="primary-gradient" style={{ width: '80px', height: '80px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 2rem' }}>
+            <ShieldAlert size={40} color="white" />
+          </div>
+          <h2 style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>Secure Test Environment</h2>
+          <p style={{ color: 'var(--on-surface-variant)', fontSize: '1.2rem', marginBottom: '3rem' }}>
+            This assessment will enter fullscreen mode. Navigation buttons will be restricted. Please ensure you have a stable connection and do not exit the browser.
+          </p>
+          <button onClick={handleStartTest} className="primary-gradient" style={{
+            padding: '1.2rem 3rem',
+            borderRadius: 'var(--radius-md)',
+            color: 'white',
+            fontWeight: 800,
+            fontSize: '1.1rem',
+            border: 'none',
+            cursor: 'pointer'
+          }}>
+            Enter Fullscreen & Begin
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ maxWidth: '1400px', margin: '0 auto', userSelect: 'none', position: 'relative' }}>
