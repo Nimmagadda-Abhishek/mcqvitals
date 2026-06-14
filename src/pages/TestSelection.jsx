@@ -138,7 +138,7 @@ const TestSelection = () => {
       {/* Grid */}
       <div style={{ 
         display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fill, minmax(420px, 1fr))', 
+        gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 420px), 1fr))', 
         gap: '2.5rem' 
       }}>
         {loading ? (
@@ -270,7 +270,7 @@ const TestSelection = () => {
                           </div>
                         </div>
 
-                        <div style={{ marginTop: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <div style={{ marginTop: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--on-surface-variant)', fontSize: '0.85rem', fontWeight: 600 }}>
                             <Star size={16} color="#eeb100" fill="#eeb100" /> {test.rating || 4.8} Rating
                           </div>

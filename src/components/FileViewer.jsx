@@ -20,17 +20,23 @@ const getFileCategory = (filename) => {
   return 'other';
 };
 
-const FileViewer = ({ filename }) => {
-  const [url, setUrl] = useState(null);
-  const [loading, setLoading] = useState(true);
+const FileViewer = ({ filename, directUrl }) => {
+  const [url, setUrl] = useState(directUrl || null);
+  const [loading, setLoading] = useState(!directUrl);
   const [error, setError] = useState(null);
   const [numPages, setNumPages] = useState(null);
   const [pdfContainerWidth, setPdfContainerWidth] = useState(800);
 
-  const category = getFileCategory(filename);
+  const category = directUrl ? getFileCategory(directUrl) : getFileCategory(filename);
 
   // Fetch the pre-signed URL from the backend
   useEffect(() => {
+    if (directUrl) {
+      setUrl(directUrl);
+      setLoading(false);
+      return;
+    }
+
     if (!filename) return;
 
     let cancelled = false;
@@ -47,7 +53,10 @@ const FileViewer = ({ filename }) => {
         if (!res.ok) throw new Error('Failed to fetch file URL');
 
         const data = await res.json();
-        if (!cancelled) setUrl(data.url);
+        if (!cancelled) {
+          setUrl(data.url);
+          setLoading(false);
+        }
       } catch (err) {
         if (!cancelled) setError(err.message);
       } finally {

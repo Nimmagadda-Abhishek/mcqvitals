@@ -294,7 +294,9 @@ const TestInterface = () => {
         padding: '1.5rem 2rem',
         background: 'var(--on-surface)',
         borderRadius: 'var(--radius-lg)',
-        color: 'white'
+        color: 'white',
+        flexWrap: 'wrap',
+        gap: '1.5rem'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
           <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -568,7 +570,7 @@ const TestInterface = () => {
               </div>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '4rem', paddingTop: '2rem', borderTop: '1px solid var(--outline-variant)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '4rem', paddingTop: '2rem', borderTop: '1px solid var(--outline-variant)', flexWrap: 'wrap', gap: '1rem' }}>
               <button
                 onClick={() => setCurrentQuestion(prev => Math.max(0, prev - 1))}
                 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--on-surface-variant)', background: 'none' }}

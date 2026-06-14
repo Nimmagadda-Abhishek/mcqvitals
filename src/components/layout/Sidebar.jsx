@@ -54,6 +54,7 @@ const Sidebar = () => {
         flexDirection: 'inherit', 
         gap: '0.8rem', 
         flex: 1, 
+        minWidth: 0,
         justifyContent: 'flex-start', 
         alignItems: 'center',
         overflowX: 'auto',

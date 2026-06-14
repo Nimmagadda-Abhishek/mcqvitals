@@ -55,7 +55,7 @@ const SolutionsReview = () => {
         </div>
       </header>
       {resultId ? (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 350px', gap: '3rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 400px), 1fr))', gap: '3rem' }}>
           <div className="premium-card" style={{ height: '600px' }}>
             <Shimmer width="100px" height="1.5rem" style={{ marginBottom: '2rem' }} />
             <Shimmer width="100%" height="200px" borderRadius="16px" style={{ marginBottom: '2rem' }} />
@@ -105,7 +105,7 @@ const SolutionsReview = () => {
           </div>
 
           {stats?.attemptedTests?.length > 0 ? (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '2rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 350px), 1fr))', gap: '2rem' }}>
               {stats.attemptedTests.map((test) => (
                 <Link 
                   key={test.resultId} 
@@ -154,9 +154,9 @@ const SolutionsReview = () => {
               ))}
             </div>
           ) : (
-            <div className="section-tonal" style={{ padding: '5rem', textAlign: 'center', borderRadius: '32px' }}>
+            <div className="section-tonal padding-responsive" style={{ textAlign: 'center', borderRadius: '32px' }}>
               <div style={{ color: 'var(--on-surface-variant)', marginBottom: '1.5rem' }}>No session data found.</div>
-              <Link to="/test" className="primary-gradient" style={{ padding: '1rem 2.5rem', borderRadius: '12px', color: 'white', fontWeight: 800, textDecoration: 'none' }}>
+              <Link to="/test" className="primary-gradient" style={{ display: 'inline-block', padding: '1rem 2.5rem', borderRadius: '12px', color: 'white', fontWeight: 800, textDecoration: 'none' }}>
                 Take Your First Test
               </Link>
             </div>
@@ -195,7 +195,7 @@ const SolutionsReview = () => {
         </div>
       </header>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 350px', gap: '3rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 400px), 1fr))', gap: '3rem' }}>
         <main>
           {question ? (
             <div className="premium-card">
@@ -317,7 +317,7 @@ const SolutionsReview = () => {
                 </div>
               </div>
 
-              <footer style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '2rem', borderTop: '1px solid var(--outline-variant)' }}>
+              <footer style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '2rem', borderTop: '1px solid var(--outline-variant)', flexWrap: 'wrap', gap: '1rem' }}>
                 <button 
                   onClick={() => setCurrentIdx(prev => Math.max(0, prev - 1))}
                   disabled={currentIdx === 0}

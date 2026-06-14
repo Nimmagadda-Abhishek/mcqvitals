@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { CardShimmer } from './common/Shimmer';
 import useScreenCapturePrevention from '../hooks/useScreenCapturePrevention';
+import FileViewer from './FileViewer';
 import api from '../services/api';
 
 /**
@@ -216,13 +217,7 @@ const FileList = () => {
     const isPdf = resource.url.toLowerCase().endsWith('.pdf') || resource.url.toLowerCase().includes('.pdf?');
 
     if (isPdf) {
-      return (
-        <iframe
-          src={resource.url}
-          style={{ width: '100%', height: '100%', border: 'none' }}
-          title={resource.title}
-        />
-      );
+      return <FileViewer directUrl={resource.url} />;
     }
 
     // Default: document (DOCX, PPTX, etc.) — Google Docs Viewer
@@ -510,9 +505,11 @@ const FileList = () => {
                 justifyContent: 'space-between',
                 paddingTop: '1.5rem',
                 borderTop: '1px solid var(--surface-low)',
-                marginTop: 'auto'
+                marginTop: 'auto',
+                flexWrap: 'wrap',
+                gap: '1rem'
               }}>
-                <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
+                <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
                   {/* Upload Date */}
                   {res.createdAt && (
                     <div style={{
