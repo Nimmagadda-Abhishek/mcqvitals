@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   User,
   CreditCard,
@@ -21,10 +22,17 @@ import api from '../services/api';
 
 const Settings = () => {
   const { user, logout, getProfile } = useAuth();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('profile');
   const [isSaving, setIsSaving] = useState(false);
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
+  const [billingHistory, setBillingHistory] = useState([]);
+  const [subscriptionDetails, setSubscriptionDetails] = useState(null);
+  const [loadingHistory, setLoadingHistory] = useState(false);
+  const [adminStats, setAdminStats] = useState(null);
+  const [adminSubscriptions, setAdminSubscriptions] = useState([]);
+  const [plans, setPlans] = useState([]);
 
   const [profileData, setProfileData] = useState({
     name: user?.name || '',
@@ -67,10 +75,74 @@ const Settings = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 992);
 
   useEffect(() => {
+    if (user?.role === 'admin') {
+      navigate('/admin/dashboard', { replace: true });
+    }
+  }, [user, navigate]);
+
+  useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 992);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  useEffect(() => {
+    if (activeTab === 'subscription') {
+      if (user?.role === 'admin') {
+        fetchAdminSubscriptionStats();
+      } else {
+        fetchSubscriptionData();
+      }
+    }
+  }, [activeTab, user?.role]);
+
+  const fetchAdminSubscriptionStats = async () => {
+    try {
+      setLoadingHistory(true);
+      const [stats, subscriptions] = await Promise.all([
+        api.admin.getDashboardStats(),
+        api.admin.getAllSubscriptions()
+      ]);
+      setAdminStats(stats);
+      setAdminSubscriptions(subscriptions);
+    } catch (error) {
+      console.error('Failed to fetch admin stats', error);
+    } finally {
+      setLoadingHistory(false);
+    }
+  };
+
+  const fetchSubscriptionData = async () => {
+    try {
+      setLoadingHistory(true);
+      const [subscriptionInfo, plansData] = await Promise.all([
+        api.subscription.getHistory(),
+        api.subscription.getPlans()
+      ]);
+      setBillingHistory(subscriptionInfo.history || []);
+      setSubscriptionDetails(subscriptionInfo);
+      setPlans(plansData);
+    } catch (error) {
+      console.error('Failed to fetch subscription data', error);
+    } finally {
+      setLoadingHistory(false);
+    }
+  };
+
+  const handleCancelSubscription = async () => {
+    if (!window.confirm('Are you sure you want to cancel your subscription? This action cannot be undone.')) {
+      return;
+    }
+    
+    try {
+      await api.subscription.cancel();
+      await getProfile(); // Refresh context
+      alert('Your subscription has been cancelled.');
+    } catch (error) {
+      console.error('Failed to cancel subscription', error);
+      alert(error.message || 'Failed to cancel subscription');
+    }
+  };
 
   const tabs = [
     { id: 'profile', label: 'Profile Settings', icon: <User size={18} /> },
@@ -207,6 +279,118 @@ const Settings = () => {
         );
 
       case 'subscription':
+        if (user?.role === 'admin') {
+          return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '3rem' }}>
+              <div className="card-tonal" style={{
+                background: 'linear-gradient(135deg, var(--on-surface) 0%, #333 100%)',
+                color: 'white',
+                position: 'relative',
+                overflow: 'hidden'
+              }}>
+                <div style={{ position: 'relative', zIndex: 1 }}>
+                  <div style={{ 
+                    display: 'flex', 
+                    flexDirection: isMobile ? 'column' : 'row',
+                    justifyContent: 'space-between', 
+                    alignItems: isMobile ? 'flex-start' : 'flex-start', 
+                    marginBottom: '2.5rem',
+                    gap: isMobile ? '1.5rem' : '0'
+                  }}>
+                    <div>
+                      <div style={{ fontSize: '0.8rem', fontWeight: 700, opacity: 0.7, textTransform: 'uppercase', marginBottom: '0.5rem' }}>ADMINISTRATOR OVERVIEW</div>
+                      <h3 style={{ fontSize: '2rem' }}>Subscription Intelligence</h3>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? '1.5rem' : '4rem' }}>
+                    <div>
+                      <div style={{ fontSize: '0.8rem', opacity: 0.7, marginBottom: '0.4rem' }}>ACTIVE SUBSCRIBERS</div>
+                      <div style={{ fontWeight: 800, fontSize: '1.5rem', color: '#10b981' }}>
+                        {loadingHistory ? '...' : adminStats?.activeSubscribers || 0}
+                      </div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.8rem', opacity: 0.7, marginBottom: '0.4rem' }}>TOTAL EARNINGS</div>
+                      <div style={{ fontWeight: 800, fontSize: '1.5rem', color: '#f59e0b' }}>
+                        {loadingHistory ? '...' : `₹${(adminStats?.totalSubscriptionEarnings || 0).toLocaleString()}`}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {/* Decorative circle */}
+                <div style={{
+                  position: 'absolute',
+                  top: '-20%',
+                  right: '-10%',
+                  width: '300px',
+                  height: '300px',
+                  background: 'rgba(255,255,255,0.05)',
+                  borderRadius: '50%'
+                }} />
+              </div>
+
+              {/* Admin Subscription List */}
+              <div>
+                <h3 style={{ fontSize: '1.25rem', marginBottom: '1.5rem' }}>Global Subscription Log</h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  {loadingHistory ? (
+                    <p>Loading subscriptions...</p>
+                  ) : adminSubscriptions.length === 0 ? (
+                    <p>No subscriptions found.</p>
+                  ) : adminSubscriptions.map((sub) => (
+                    <div key={sub._id} className="card-tonal" style={{
+                      display: 'flex',
+                      flexDirection: isMobile ? 'column' : 'row',
+                      justifyContent: 'space-between',
+                      alignItems: isMobile ? 'flex-start' : 'center',
+                      padding: isMobile ? '1.5rem' : '1.2rem 2rem',
+                      gap: isMobile ? '1.5rem' : '0'
+                    }}>
+                      <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? '1rem' : '3rem', alignItems: isMobile ? 'flex-start' : 'center' }}>
+                        <div style={{ width: '120px' }}>
+                          <div style={{ fontSize: '0.9rem', fontWeight: 600 }}>
+                            {new Date(sub.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                          </div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--on-surface-variant)' }}>
+                            {sub.orderId || 'N/A'}
+                          </div>
+                        </div>
+                        <div style={{ width: '180px' }}>
+                          <div style={{ fontWeight: 800, fontSize: '0.95rem' }}>{sub.userId?.name || 'Unknown User'}</div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--on-surface-variant)' }}>{sub.userId?.email || 'No email provided'}</div>
+                        </div>
+                        <div style={{ fontWeight: 700, width: '100px' }}>
+                          {sub.plan === 'yearly' ? 'Yearly Pro' : sub.plan === 'monthly' ? 'Monthly Pro' : 'N/A'}
+                        </div>
+                        <div style={{ fontWeight: 700 }}>₹{sub.amount?.toFixed(2)}</div>
+                      </div>
+                      <div style={{ display: 'flex', gap: '2rem', alignItems: 'center', width: isMobile ? '100%' : 'auto', justifyContent: isMobile ? 'space-between' : 'flex-end' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: sub.status === 'paid' ? 'var(--success)' : (sub.status === 'created' ? 'var(--tertiary)' : 'var(--error)'), fontSize: '0.85rem', fontWeight: 700, textTransform: 'capitalize' }}>
+                          {sub.status === 'paid' ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />} {sub.status}
+                        </div>
+                        <button style={{ color: 'var(--primary)' }}><ExternalLink size={18} /></button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          );
+        }
+
+        const currentPlanId = subscriptionDetails?.currentPlan && subscriptionDetails.currentPlan !== 'none' ? subscriptionDetails.currentPlan : user?.subscription?.plan;
+        const currentPlanDetails = plans.find(p => p.id === currentPlanId) || null;
+        const isSubActive = subscriptionDetails?.currentPlan && subscriptionDetails.currentPlan !== 'none';
+        
+        let expiryDate = 'N/A';
+        if (subscriptionDetails?.nextBillingDate) {
+           expiryDate = new Date(subscriptionDetails.nextBillingDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+        } else if (user?.subscription?.expiryDate) {
+           expiryDate = new Date(user.subscription.expiryDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+        }
+
+        const displayAmount = subscriptionDetails?.amount || (currentPlanDetails ? currentPlanDetails.price : 0);
+
         return (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '3rem' }}>
             {/* Current Plan Card */}
@@ -227,26 +411,27 @@ const Settings = () => {
                 }}>
                   <div>
                     <div style={{ fontSize: '0.8rem', fontWeight: 700, opacity: 0.7, textTransform: 'uppercase', marginBottom: '0.5rem' }}>CURRENT PLAN</div>
-                    <h3 style={{ fontSize: '2rem' }}>Fellow Annual</h3>
+                    <h3 style={{ fontSize: '2rem' }}>{currentPlanDetails ? currentPlanDetails.name : 'Free Tier'}</h3>
                   </div>
                   <div style={{
-                    background: 'var(--primary)',
+                    background: isSubActive ? 'var(--primary)' : 'var(--outline-variant)',
                     padding: '0.5rem 1rem',
                     borderRadius: '20px',
                     fontSize: '0.75rem',
-                    fontWeight: 800
+                    fontWeight: 800,
+                    textTransform: 'uppercase'
                   }}>
-                    ACTIVE
+                    {isSubActive ? 'ACTIVE' : 'INACTIVE'}
                   </div>
                 </div>
                 <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? '1.5rem' : '4rem' }}>
                   <div>
                     <div style={{ fontSize: '0.8rem', opacity: 0.7, marginBottom: '0.4rem' }}>NEXT BILLING</div>
-                    <div style={{ fontWeight: 600 }}>Jan 24, 2026</div>
+                    <div style={{ fontWeight: 600 }}>{isSubActive ? expiryDate : 'N/A'}</div>
                   </div>
                   <div>
                     <div style={{ fontSize: '0.8rem', opacity: 0.7, marginBottom: '0.4rem' }}>AMOUNT</div>
-                    <div style={{ fontWeight: 600 }}>$129.00 / yr</div>
+                    <div style={{ fontWeight: 600 }}>{displayAmount > 0 ? `₹${displayAmount} / ${currentPlanId === 'monthly' ? 'mo' : 'yr'}` : '₹0'}</div>
                   </div>
                 </div>
               </div>
@@ -264,23 +449,31 @@ const Settings = () => {
 
             {/* Billing Actions */}
             <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '1.5rem' }}>
-              <button style={{
-                flex: 1,
-                padding: '1.2rem',
-                borderRadius: 'var(--radius-md)',
-                border: '2px solid var(--outline-variant)',
-                fontWeight: 700
-              }}>
+              <button 
+                onClick={() => navigate('/pricing')}
+                style={{
+                  flex: 1,
+                  padding: '1.2rem',
+                  borderRadius: 'var(--radius-md)',
+                  border: '2px solid var(--outline-variant)',
+                  fontWeight: 700,
+                  cursor: 'pointer'
+                }}
+              >
                 Change Plan
               </button>
-              <button style={{
-                flex: 1,
-                padding: '1.2rem',
-                borderRadius: 'var(--radius-md)',
-                color: 'var(--error)',
-                border: '2px solid rgba(186, 26, 26, 0.1)',
-                fontWeight: 700
-              }}>
+              <button 
+                onClick={handleCancelSubscription}
+                style={{
+                  flex: 1,
+                  padding: '1.2rem',
+                  borderRadius: 'var(--radius-md)',
+                  color: 'var(--error)',
+                  border: '2px solid rgba(186, 26, 26, 0.1)',
+                  fontWeight: 700,
+                  cursor: 'pointer'
+                }}
+              >
                 Cancel Subscription
               </button>
             </div>
@@ -289,12 +482,12 @@ const Settings = () => {
             <div>
               <h3 style={{ fontSize: '1.25rem', marginBottom: '1.5rem' }}>Billing History</h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {[
-                  { date: 'Jan 24, 2025', amount: '$129.00', status: 'Paid', invoice: 'LUM-10294' },
-                  { date: 'Jan 24, 2024', amount: '$129.00', status: 'Paid', invoice: 'LUM-09212' },
-                  { date: 'Jan 24, 2023', amount: '$49.00', status: 'Paid', invoice: 'LUM-08103' }
-                ].map((bill, i) => (
-                  <div key={i} className="card-tonal" style={{
+                {loadingHistory ? (
+                  <p>Loading billing history...</p>
+                ) : billingHistory.length === 0 ? (
+                  <p>No billing history found.</p>
+                ) : billingHistory.map((bill) => (
+                  <div key={bill._id} className="card-tonal" style={{
                     display: 'flex',
                     flexDirection: isMobile ? 'column' : 'row',
                     justifyContent: 'space-between',
@@ -304,14 +497,18 @@ const Settings = () => {
                   }}>
                     <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? '1rem' : '3rem', alignItems: isMobile ? 'flex-start' : 'center' }}>
                       <div style={{ width: '120px' }}>
-                        <div style={{ fontSize: '0.9rem', fontWeight: 600 }}>{bill.date}</div>
-                        <div style={{ fontSize: '0.75rem', color: 'var(--on-surface-variant)' }}>{bill.invoice}</div>
+                        <div style={{ fontSize: '0.9rem', fontWeight: 600 }}>
+                          {new Date(bill.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                        </div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--on-surface-variant)' }}>
+                          {bill.orderId || 'N/A'}
+                        </div>
                       </div>
-                      <div style={{ fontWeight: 700 }}>{bill.amount}</div>
+                      <div style={{ fontWeight: 700 }}>₹{bill.amount?.toFixed(2)}</div>
                     </div>
                     <div style={{ display: 'flex', gap: '2rem', alignItems: 'center', width: isMobile ? '100%' : 'auto', justifyContent: isMobile ? 'space-between' : 'flex-end' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--success)', fontSize: '0.85rem', fontWeight: 700 }}>
-                        <CheckCircle2 size={16} /> {bill.status}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: bill.status === 'paid' ? 'var(--success)' : (bill.status === 'failed' ? 'var(--error)' : 'var(--on-surface-variant)'), fontSize: '0.85rem', fontWeight: 700, textTransform: 'capitalize' }}>
+                        {bill.status === 'paid' ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />} {bill.status}
                       </div>
                       <button style={{ color: 'var(--primary)' }}><ExternalLink size={18} /></button>
                     </div>
@@ -334,7 +531,7 @@ const Settings = () => {
                 {[
                   { title: 'Personalized Progress Reports', desc: 'Weekly insights into your cognitive velocity and accuracy.' },
                   { title: 'Exam Reminders', desc: 'Alerts for your scheduled tests and submission deadlines.' },
-                  { title: 'New Scholarly Resources', desc: 'Be the first to know when admin uploads new materials.' },
+                  { title: 'New Premium Resources', desc: 'Be the first to know when admin uploads new materials.' },
                 ].map((item, i) => (
                   <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
                     <div style={{ flex: 1 }}>

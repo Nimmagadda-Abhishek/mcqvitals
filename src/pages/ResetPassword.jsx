@@ -49,20 +49,7 @@ const ResetPassword = () => {
     >
       <div className="premium-card" style={{ maxWidth: '560px', width: '100%', padding: '3rem' }}>
         <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-          <div
-            className="primary-gradient"
-            style={{
-              width: '48px',
-              height: '48px',
-              borderRadius: '12px',
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginBottom: '1.5rem',
-            }}
-          >
-            <Lock size={24} color="white" />
-          </div>
+          <img src="/logo.png" alt="Mcqvitals Logo" style={{ height: '72px', borderRadius: '12px', marginBottom: '1.5rem', objectFit: 'contain' }} />
           <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Update Password</h1>
           <p style={{ color: 'var(--on-surface-variant)', fontSize: '0.9rem' }}>
             Enter the OTP and your new password.

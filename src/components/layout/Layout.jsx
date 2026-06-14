@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
@@ -42,36 +42,35 @@ const Layout = ({ children }) => {
           paddingBottom: '4rem'
         }}>
           <div>
-            <h3 style={{ marginBottom: '1.5rem', color: 'var(--primary)', letterSpacing: '-0.03em' }}>THE SCHOLARLY ATHENEUM</h3>
+            <h3 style={{ marginBottom: '1.5rem', color: 'var(--primary)', letterSpacing: '-0.03em' }}>MCQVITALS</h3>
             <p style={{ color: 'var(--on-surface-variant)', fontSize: '0.95rem', maxWidth: '300px' }}>
-              We moved beyond the transactional to create a premium library-grade digital experience for focused intellect.
+              Elevate your test preparation with our comprehensive assessment platform designed for serious candidates.
             </p>
           </div>
           <div>
-            <h4 style={{ marginBottom: '1.5rem', fontSize: '1rem', color: 'var(--on-surface)' }}>Academic Module</h4>
+            <h4 style={{ marginBottom: '1.5rem', fontSize: '1rem', color: 'var(--on-surface)' }}>Assessments</h4>
             <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '1rem', fontSize: '0.9rem', color: 'var(--on-surface-variant)' }}>
-              <li>Quantum Foundations</li>
-              <li>Advanced Logic</li>
-              <li>Calculus III Archive</li>
-              <li>Thesis Methodology</li>
+              <li>Mock Tests</li>
+              <li>Subject Wise Tests</li>
+              <li>Previous Year Papers</li>
+              <li>Advanced Modules</li>
             </ul>
           </div>
           <div>
-            <h4 style={{ marginBottom: '1.5rem', fontSize: '1rem', color: 'var(--on-surface)' }}>Research</h4>
+            <h4 style={{ marginBottom: '1.5rem', fontSize: '1rem', color: 'var(--on-surface)' }}>Resources</h4>
             <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '1rem', fontSize: '0.9rem', color: 'var(--on-surface-variant)' }}>
-              <li>Global Library</li>
-              <li>Peer Review Network</li>
-              <li>Publication Support</li>
-              <li>Resource Sourcing</li>
+              <li>Question Bank</li>
+              <li>Performance Analytics</li>
+              <li>Detailed Solutions</li>
+              <li>Study Materials</li>
             </ul>
           </div>
           <div>
-            <h4 style={{ marginBottom: '1.5rem', fontSize: '1rem', color: 'var(--on-surface)' }}>The Collective</h4>
+            <h4 style={{ marginBottom: '1.5rem', fontSize: '1rem', color: 'var(--on-surface)' }}>Plans</h4>
             <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '1rem', fontSize: '0.9rem', color: 'var(--on-surface-variant)' }}>
-              <li>Scholar Tier</li>
-              <li>Fellow Membership</li>
-              <li>Research Institutional</li>
-              <li>Alumni Circle</li>
+              <li>Free Tier</li>
+              <li>Monthly Pro</li>
+              <li>Yearly Pro</li>
             </ul>
           </div>
         </div>
@@ -86,12 +85,11 @@ const Layout = ({ children }) => {
           fontSize: '0.85rem',
           color: 'var(--on-surface-variant)'
         }}>
-          <span>© 2026 The Scholarly Atheneum. All rights reserved.</span>
+          <span>© 2026 Mcqvitals. All rights reserved.</span>
           <div style={{ display: 'flex', gap: '2.5rem' }}>
-            <a href="/">Privacy Policy</a>
-            <a href="/">Terms of Service</a>
-            <a href="/">Contact Us</a>
-            <a href="/">About</a>
+            <Link to="/privacy-policy" style={{ color: 'inherit', textDecoration: 'none' }}>Privacy Policy</Link>
+            <Link to="/terms-of-service" style={{ color: 'inherit', textDecoration: 'none' }}>Terms of Service</Link>
+            <Link to="/about" style={{ color: 'inherit', textDecoration: 'none' }}>About</Link>
           </div>
         </div>
       </footer>

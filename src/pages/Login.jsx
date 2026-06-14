@@ -1,12 +1,13 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Mail, Lock, ArrowRight, BookOpen } from 'lucide-react';
+import api from '../services/api';
+import { Mail, Lock, ArrowRight, BookOpen, AlertCircle } from 'lucide-react';
 
 const Login = () => {
   const navigate = useNavigate();
   const { login, isLoggedIn } = useAuth();
-  
+
   React.useEffect(() => {
     if (isLoggedIn) {
       navigate('/dashboard');
@@ -16,15 +17,37 @@ const Login = () => {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [error, setError] = React.useState('');
+  const [deviceMismatch, setDeviceMismatch] = React.useState(false);
+  const [requestStatus, setRequestStatus] = React.useState('');
+  const [isRequesting, setIsRequesting] = React.useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setDeviceMismatch(false);
+    setRequestStatus('');
     const result = await login(email, password);
     if (result.success) {
       navigate('/dashboard');
     } else {
       setError(result.message);
+      if (result.errorData && result.errorData.deviceMismatch) {
+        setDeviceMismatch(true);
+      }
+    }
+  };
+
+  const handleDeviceChangeRequest = async () => {
+    try {
+      setIsRequesting(true);
+      const res = await api.auth.requestDeviceChange({ email });
+      setRequestStatus(res.message || 'Request submitted successfully.');
+      setError('');
+      setDeviceMismatch(false);
+    } catch (err) {
+      setError(err.message || 'Failed to submit request.');
+    } finally {
+      setIsRequesting(false);
     }
   };
 
@@ -39,28 +62,62 @@ const Login = () => {
     }}>
       <div className="premium-card" style={{ maxWidth: '440px', width: '100%', padding: '3rem' }}>
         <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-          <div className="primary-gradient" style={{
-            width: '48px',
-            height: '48px',
-            borderRadius: '12px',
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginBottom: '1.5rem'
-          }}>
-            <BookOpen size={24} color="white" />
-          </div>
+          <img src="/logo.png" alt="Mcqvitals Logo" style={{ height: '72px', borderRadius: '12px', marginBottom: '1.5rem', objectFit: 'contain' }} />
           <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Welcome Back</h1>
           <p style={{ color: 'var(--on-surface-variant)', fontSize: '0.9rem' }}>
             Enter your credentials to access your workspace.
           </p>
         </div>
-        {error && <div style={{ color: 'var(--error)', backgroundColor: '#fff1f0', padding: '0.8rem', borderRadius: 'var(--radius-sm)', marginBottom: '1.5rem', fontSize: '0.85rem', textAlign: 'center', border: '1px solid #ffa39e' }}>{error}</div>}
+
+        <div style={{
+          backgroundColor: '#fffbe6',
+          border: '1px solid #ffe58f',
+          padding: '0.8rem',
+          borderRadius: 'var(--radius-sm)',
+          marginBottom: '1.5rem',
+          fontSize: '0.85rem',
+          color: '#d48806',
+          display: 'flex',
+          gap: '0.5rem',
+          alignItems: 'flex-start'
+        }}>
+          <AlertCircle size={16} style={{ flexShrink: 0, marginTop: '0.1rem' }} />
+          <span><strong>Note:</strong> You are allowed to use only ONE device for this platform. Once you log in, this device will be permanently bound to your account.</span>
+        </div>
+
+        {requestStatus && <div style={{ color: '#389e0d', backgroundColor: '#f6ffed', padding: '0.8rem', borderRadius: 'var(--radius-sm)', marginBottom: '1.5rem', fontSize: '0.85rem', textAlign: 'center', border: '1px solid #b7eb8f' }}>{requestStatus}</div>}
+        
+        {error && (
+          <div style={{ color: 'var(--error)', backgroundColor: '#fff1f0', padding: '0.8rem', borderRadius: 'var(--radius-sm)', marginBottom: '1.5rem', fontSize: '0.85rem', textAlign: 'center', border: '1px solid #ffa39e' }}>
+            {error}
+            {deviceMismatch && (
+              <div style={{ marginTop: '0.8rem' }}>
+                <button 
+                  onClick={handleDeviceChangeRequest}
+                  disabled={isRequesting}
+                  style={{
+                    padding: '0.5rem 1rem',
+                    borderRadius: 'var(--radius-sm)',
+                    border: '1px solid #ffa39e',
+                    background: 'white',
+                    color: 'var(--error)',
+                    fontWeight: 600,
+                    cursor: isRequesting ? 'not-allowed' : 'pointer',
+                    fontSize: '0.85rem'
+                  }}
+                >
+                  {isRequesting ? 'Requesting...' : 'Request Device Change from Admin'}
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           <div style={{ position: 'relative' }}>
             <Mail size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--on-surface-variant)' }} />
-            <input 
-              type="email" 
+            <input
+              type="email"
               placeholder="Email address"
               required
               value={email}
@@ -79,8 +136,8 @@ const Login = () => {
 
           <div style={{ position: 'relative' }}>
             <Lock size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--on-surface-variant)' }} />
-            <input 
-              type="password" 
+            <input
+              type="password"
               placeholder="Password"
               required
               value={password}
@@ -121,7 +178,7 @@ const Login = () => {
 
         <div style={{ textAlign: 'center', marginTop: '2.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--outline-variant)' }}>
           <p style={{ fontSize: '0.9rem', color: 'var(--on-surface-variant)' }}>
-            Don't have an account? <Link to="/register" style={{ color: 'var(--primary)', fontWeight: 700 }}>Join Lumina</Link>
+            Don't have an account? <Link to="/register" style={{ color: 'var(--primary)', fontWeight: 700 }}>Join McqVitals</Link>
           </p>
         </div>
       </div>

@@ -1,4 +1,4 @@
-const BASE_URL = import.meta.env.VITE_API_URL || 'https://subarctic-referable-strainer.ngrok-free.dev/api';
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
 const getHeaders = (body) => {
     const token = localStorage.getItem('token');
@@ -12,10 +12,10 @@ const getHeaders = (body) => {
     if (token) {
         headers['Authorization'] = `Bearer ${token}`;
     }
-    
+
     // Add ngrok header to bypass warning page
     headers['ngrok-skip-browser-warning'] = 'true';
-    
+
     return headers;
 };
 
@@ -24,7 +24,9 @@ const handleResponse = async (response, url) => {
     console.log(`[API Response] ${response.status} ${url}:`, data);
 
     if (!response.ok) {
-        throw new Error(data.message || 'Something went wrong');
+        const error = new Error(data.message || 'Something went wrong');
+        if (data.deviceMismatch) error.deviceMismatch = true;
+        throw error;
     }
     return data;
 };
@@ -32,16 +34,26 @@ const handleResponse = async (response, url) => {
 const request = async (url, options = {}) => {
     const fullUrl = url.startsWith('http') ? url : `${BASE_URL}${url}`;
 
+    const mergedHeaders = {
+        ...getHeaders(options.body),
+        ...options.headers
+    };
+
     // Safe logging for FormData
     const logBody = options.body instanceof FormData ? '[FormData]' : (options.body ? JSON.parse(options.body) : '');
-    console.log(`[API Request] ${options.method || 'GET'} ${fullUrl}`, logBody);
+    
+    if (options.method === 'POST') {
+        console.log(`[API POST Request] ${fullUrl}`, {
+            headers: mergedHeaders,
+            body: logBody
+        });
+    } else {
+        console.log(`[API Request] ${options.method || 'GET'} ${fullUrl}`, logBody);
+    }
 
     const response = await fetch(fullUrl, {
         ...options,
-        headers: {
-            ...getHeaders(options.body),
-            ...options.headers
-        }
+        headers: mergedHeaders
     });
 
     return handleResponse(response, fullUrl);
@@ -69,6 +81,12 @@ const api = {
 
         resetPassword: (data) =>
             request('/auth/reset-password', {
+                method: 'POST',
+                body: JSON.stringify(data),
+            }),
+
+        requestDeviceChange: (data) =>
+            request('/auth/request-device-change', {
                 method: 'POST',
                 body: JSON.stringify(data),
             }),
@@ -184,11 +202,22 @@ const api = {
                 method: 'POST'
             }),
 
+        // Device Change Approvals
+        getDeviceChangeRequests: () =>
+            request('/admin/device-change-requests'),
+            
+        approveDeviceChange: (userId) =>
+            request(`/admin/device-change-requests/${userId}/approve`, {
+                method: 'POST'
+            }),
+
         // User & Results Monitoring
         getAllUsers: () =>
             request('/admin/users'),
         getAllResults: () =>
             request('/admin/results'),
+        getAllSubscriptions: () =>
+            request('/admin/subscriptions'),
 
 
         // Study Resources
@@ -201,6 +230,15 @@ const api = {
             request(`/admin/resources/${resourceId}`, {
                 method: 'DELETE',
             }),
+    },
+
+    subscription: {
+        getPlans: () => request('/subscription/plans'),
+        getHistory: () => request('/subscription/history'),
+        cancel: () => request('/subscription/cancel', { method: 'POST' }),
+        upgrade: (plan) => request('/subscription/upgrade', { method: 'POST', body: JSON.stringify({ plan }) }),
+        createOrder: (plan) => request('/subscription/order', { method: 'POST', body: JSON.stringify({ plan }) }),
+        verifyPayment: (data) => request('/subscription/verify', { method: 'POST', body: JSON.stringify(data) }),
     }
 };
 

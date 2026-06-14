@@ -80,7 +80,8 @@ const AdminTests = () => {
     category: '',
     duration: 60,
     difficulty: 'Beginner',
-    rating: 5
+    rating: 5,
+    isFree: true
   });
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -471,6 +472,11 @@ const AdminTests = () => {
                   <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 800, marginBottom: '0.8rem', color: 'var(--on-surface-variant)', letterSpacing: '0.05em' }}>RATING (1-5)</label>
                   <input required className="input-premium" type="number" min="1" max="5" value={newTest.rating} onChange={(e) => setNewTest({...newTest, rating: parseInt(e.target.value)})} />
                 </div>
+                
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginTop: '1.5rem' }}>
+                  <input type="checkbox" checked={newTest.isFree} onChange={(e) => setNewTest({...newTest, isFree: e.target.checked})} style={{ width: '20px', height: '20px', cursor: 'pointer' }} />
+                  <label style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--on-surface-variant)', cursor: 'pointer' }} onClick={() => setNewTest({...newTest, isFree: !newTest.isFree})}>AVAILABLE FOR FREE (Uncheck for Premium)</label>
+                </div>
               </div>
 
               <div>
@@ -738,6 +744,11 @@ const AdminTests = () => {
                 <div>
                   <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 800, marginBottom: '0.8rem', color: 'var(--on-surface-variant)', letterSpacing: '0.05em' }}>RATING (1-5)</label>
                   <input required className="input-premium" type="number" min="1" max="5" value={editingTest.rating || 5} onChange={(e) => setEditingTest({...editingTest, rating: parseInt(e.target.value)})} />
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginTop: '1.5rem' }}>
+                  <input type="checkbox" checked={editingTest.isFree !== false} onChange={(e) => setEditingTest({...editingTest, isFree: e.target.checked})} style={{ width: '20px', height: '20px', cursor: 'pointer' }} />
+                  <label style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--on-surface-variant)', cursor: 'pointer' }} onClick={() => setEditingTest({...editingTest, isFree: editingTest.isFree === false ? true : false})}>AVAILABLE FOR FREE (Uncheck for Premium)</label>
                 </div>
               </div>
 

@@ -38,6 +38,8 @@ const AdminDashboard = () => {
     { label: 'Assessments', value: stats?.totalTests || 0, icon: <ClipboardList size={24} />, color: 'var(--success)', trend: '4 Active modules' },
     { label: 'Total Attempts', value: stats?.totalResults || 0, icon: <TrendingUp size={24} />, color: 'var(--tertiary)', trend: '85% completion rate' },
     { label: 'Malpractice Cases', value: stats?.malpracticeCount || 0, icon: <ShieldAlert size={24} />, color: 'var(--error)', trend: 'Action required' },
+    { label: 'Active Subscribers', value: stats?.activeSubscribers || 0, icon: <CheckCircle size={24} />, color: '#10b981', trend: 'Premium Users' },
+    { label: 'Total Earnings', value: `₹${(stats?.totalSubscriptionEarnings || 0).toLocaleString()}`, icon: <TrendingUp size={24} />, color: '#f59e0b', trend: 'Revenue' },
   ];
 
   return (

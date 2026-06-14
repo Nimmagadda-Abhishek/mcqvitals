@@ -22,7 +22,8 @@ const AdminResources = () => {
     title: '',
     type: 'document',
     url: '',
-    category: ''
+    category: '',
+    isFree: true
   });
   const [uploading, setUploading] = useState(false);
   const [selectedResource, setSelectedResource] = useState(null);
@@ -49,7 +50,7 @@ const AdminResources = () => {
       await api.admin.createResource(newResource);
       setIsModalOpen(false);
       loadResources();
-      setNewResource({ title: '', type: 'document', url: '', category: '' });
+      setNewResource({ title: '', type: 'document', url: '', category: '', isFree: true });
     } catch (error) {
       alert('Failed to add resource');
     }
@@ -405,6 +406,10 @@ const AdminResources = () => {
                       newResource.type === 'image' ? 'JPG, PNG, GIF, WEBP formats supported.' :
                         'Direct navigation to external educational portals.'}
                 </p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginTop: '1.5rem' }}>
+                  <input type="checkbox" checked={newResource.isFree} onChange={(e) => setNewResource({...newResource, isFree: e.target.checked})} style={{ width: '20px', height: '20px', cursor: 'pointer' }} />
+                  <label style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--on-surface-variant)', cursor: 'pointer' }} onClick={() => setNewResource({...newResource, isFree: !newResource.isFree})}>AVAILABLE FOR FREE (Uncheck for Premium)</label>
+                </div>
               </div>
               <button
                 type="submit"

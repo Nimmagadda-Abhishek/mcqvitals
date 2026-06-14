@@ -21,7 +21,12 @@ import AdminResults from './pages/AdminResults';
 import AdminResources from './pages/AdminResources';
 import AdminApprovals from './pages/AdminApprovals';
 import PendingApproval from './pages/PendingApproval';
-
+import Pricing from './pages/Pricing';
+import AdminSubscriptions from './pages/AdminSubscriptions';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsOfService from './pages/TermsOfService';
+import ContactUs from './pages/ContactUs';
+import About from './pages/About';
 
 
 const ProtectedRoute = ({ children }) => {
@@ -61,6 +66,11 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/pricing" element={<Pricing />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/terms-of-service" element={<TermsOfService />} />
+            <Route path="/contact-us" element={<ContactUs />} />
+            <Route path="/about" element={<About />} />
             
             {/* Protected Routes */}
             <Route path="/dashboard" element={
@@ -108,6 +118,9 @@ function App() {
             } />
             <Route path="/admin/approvals/pending" element={
               <AdminRoute><AdminApprovals /></AdminRoute>
+            } />
+            <Route path="/admin/subscriptions" element={
+              <AdminRoute><AdminSubscriptions /></AdminRoute>
             } />
           </Routes>
 

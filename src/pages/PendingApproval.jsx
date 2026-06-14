@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 
 const PendingApproval = () => {
   const location = useLocation();
-  const { approvalStatus } = useAuth();
+  const { approvalStatus, logout } = useAuth();
 
   const statusFromState = location?.state?.approvalStatus;
   const effectiveStatus = statusFromState || approvalStatus;
@@ -59,16 +59,20 @@ const PendingApproval = () => {
         </p>
 
         <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem' }}>
-          <Link to="/dashboard" className="primary-gradient" style={{
+          <button onClick={logout} className="primary-gradient" style={{
             padding: '0.95rem 1.5rem',
             borderRadius: '12px',
             color: 'white',
             fontWeight: 900,
             textDecoration: 'none',
-            boxShadow: '0 10px 25px -5px rgba(0, 55, 176, 0.3)'
+            boxShadow: '0 10px 25px -5px rgba(0, 55, 176, 0.3)',
+            border: 'none',
+            cursor: 'pointer',
+            fontSize: '1rem',
+            fontFamily: 'inherit'
           }}>
-            Go to Dashboard
-          </Link>
+            Log Out & Go to Login
+          </button>
         </div>
       </div>
     </div>

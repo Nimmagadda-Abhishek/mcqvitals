@@ -12,7 +12,8 @@ import {
   ShieldCheck,
   UploadCloud,
   FileText,
-  ShieldAlert
+  ShieldAlert,
+  CreditCard
 } from 'lucide-react';
 
 import { useAuth } from '../../context/AuthContext';
@@ -26,6 +27,7 @@ const Sidebar = () => {
     { icon: <BarChart3 size={24} />, label: 'Performance', path: '/results' },
     { icon: <History size={24} />, label: 'Review', path: '/solutions-review' },
     { icon: <BookOpen size={24} />, label: 'Resources', path: '/resources' },
+    { icon: <ShieldCheck size={24} />, label: 'Plans', path: '/pricing' },
   ];
 
   const adminNavItems = [
@@ -35,6 +37,7 @@ const Sidebar = () => {
     { icon: <Users size={24} />, label: 'Students', path: '/admin/users' },
     { icon: <BarChart3 size={24} />, label: 'All Results', path: '/admin/results' },
     { icon: <FileText size={24} />, label: 'Resources', path: '/admin/resources' },
+    { icon: <CreditCard size={24} />, label: 'Subscriptions', path: '/admin/subscriptions' },
   ];
 
 
@@ -43,16 +46,7 @@ const Sidebar = () => {
   return (
     <aside className="sidebar-rail" style={{ zIndex: 100 }}>
       <div style={{ marginBottom: '2.5rem' }} className="mobile-hide">
-        <div className="primary-gradient" style={{
-          width: '40px',
-          height: '40px',
-          borderRadius: '12px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}>
-          <BookOpen size={20} color="white" />
-        </div>
+        <img src="/logo.png" alt="Mcqvitals Logo" style={{ height: '56px', borderRadius: '12px', objectFit: 'contain' }} />
       </div>
 
       <nav style={{ display: 'flex', flexDirection: 'inherit', gap: '1.5rem', flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -79,23 +73,25 @@ const Sidebar = () => {
       </nav>
 
       <div style={{ display: 'flex', flexDirection: 'inherit', gap: '1.5rem', marginTop: 'auto', alignItems: 'center' }}>
-        <NavLink 
-          to="/settings"
-          title="Settings"
-          style={({ isActive }) => ({
-            width: '48px',
-            height: '48px',
-            borderRadius: '14px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: isActive ? 'var(--primary)' : 'var(--on-surface-variant)',
-            background: isActive ? 'var(--primary-container)' : 'transparent',
-            transition: 'all 0.2s ease'
-          })}
-        >
-          <Settings size={24} />
-        </NavLink>
+        {user?.role !== 'admin' && (
+          <NavLink 
+            to="/settings"
+            title="Settings"
+            style={({ isActive }) => ({
+              width: '48px',
+              height: '48px',
+              borderRadius: '14px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: isActive ? 'var(--primary)' : 'var(--on-surface-variant)',
+              background: isActive ? 'var(--primary-container)' : 'transparent',
+              transition: 'all 0.2s ease'
+            })}
+          >
+            <Settings size={24} />
+          </NavLink>
+        )}
         <button 
           onClick={logout}
           title="Log Out" 

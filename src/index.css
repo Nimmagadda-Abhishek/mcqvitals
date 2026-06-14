@@ -1,24 +1,25 @@
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap');
 
 :root {
-  /* Core Palette - The Scholarly Atheneum */
-  --primary: #0037b0;
-  --primary-container: #d9e2ff;
-  --secondary: #585e71;
-  --surface: #fdfbff;
-  --surface-low: #f4f3f9;
-  --surface-lowest: #ffffff;
-  --surface-high: #eeedf4;
-  --on-surface: #1b1b1f;
-  --on-surface-variant: #44464f;
-  --outline-variant: #c4c6d0;
+  /* Core Palette - McqVitals */
+  --primary: #1F568C;
+  --primary-container: #E1EAF2;
+  --secondary: #008080;
+  --accent: #40E0D0;
+  --surface: #F8FAFC;
+  --surface-low: #F1F5F9;
+  --surface-lowest: #FFFFFF;
+  --surface-high: #E2E8F0;
+  --on-surface: #0F172A;
+  --on-surface-variant: #334155;
+  --outline-variant: #CBD5E1;
   
-  --error: #ba1a1a;
-  --success: #006d3a;
-  --success-container: #98f7b5;
+  --error: #EF4444;
+  --success: #22C55E;
+  --success-container: #DCFCE7;
 
   /* Typography */
-  --font-display: 'Manrope', sans-serif;
+  --font-display: 'Poppins', sans-serif;
   --font-body: 'Inter', sans-serif;
 
   /* Shapes */
@@ -92,11 +93,11 @@ h3 { font-size: clamp(1.2rem, 3vw, 1.8rem); }
 }
 
 .primary-gradient {
-  background: linear-gradient(135deg, var(--primary) 0%, #0055ff 100%);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
 }
 
 .text-gradient {
-  background: linear-gradient(135deg, var(--primary) 0%, #0055ff 100%);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }

@@ -12,11 +12,13 @@ import {
 } from 'lucide-react';
 import api from '../services/api';
 import { CardShimmer } from '../components/common/Shimmer';
+import { useAuth } from '../context/AuthContext';
 
 const MAX_ATTEMPTS = 2;
 
 const TestSelection = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
   const [tests, setTests] = useState([]);
@@ -145,6 +147,13 @@ const TestSelection = () => {
           const attempts = attemptMap[test._id] || 0;
           const exhausted = attempts >= MAX_ATTEMPTS;
 
+          const now = new Date();
+          const expiryDate = user?.subscription?.expiryDate ? new Date(user.subscription.expiryDate) : null;
+          const isExpired = expiryDate ? expiryDate < now : false;
+          const hasActiveSub = user?.subscription?.status === 'active' && !isExpired;
+
+          const isLocked = !test.isFree && !hasActiveSub;
+
           return (
                       <div
                         key={test._id}
@@ -152,7 +161,7 @@ const TestSelection = () => {
                         style={{
                           display: 'flex',
                           flexDirection: 'column',
-                          opacity: exhausted ? 0.78 : 1,
+                          opacity: exhausted || isLocked ? 0.78 : 1,
                           transition: 'opacity 0.2s ease',
                           position: 'relative',
                           overflow: 'hidden'
@@ -173,13 +182,13 @@ const TestSelection = () => {
                             width: '56px', 
                             height: '56px', 
                             borderRadius: '14px', 
-                            background: exhausted ? 'var(--error-container)' : 'var(--primary-container)', 
+                            background: exhausted || isLocked ? 'var(--error-container)' : 'var(--primary-container)', 
                             display: 'flex', 
                             alignItems: 'center', 
                             justifyContent: 'center',
-                            color: exhausted ? 'var(--error)' : 'var(--primary)'
+                            color: exhausted || isLocked ? 'var(--error)' : 'var(--primary)'
                           }}>
-                            {exhausted ? <Lock size={26} /> : <ClipboardList size={28} />}
+                            {exhausted || isLocked ? <Lock size={26} /> : <ClipboardList size={28} />}
                           </div>
 
                           <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center' }}>
@@ -198,6 +207,19 @@ const TestSelection = () => {
                               <RotateCcw size={12} />
                               {attempts}/{MAX_ATTEMPTS} Attempts
                             </div>
+                            {!test.isFree && (
+                              <div style={{ 
+                                background: 'var(--primary)', 
+                                padding: '0.5rem 1rem', 
+                                borderRadius: '20px',
+                                fontSize: '0.75rem',
+                                fontWeight: 800,
+                                color: 'white',
+                                textTransform: 'uppercase'
+                              }}>
+                                Premium
+                              </div>
+                            )}
                             <div style={{ 
                               background: 'var(--surface-low)', 
                               padding: '0.5rem 1rem', 
@@ -253,7 +275,25 @@ const TestSelection = () => {
                             <Star size={16} color="#eeb100" fill="#eeb100" /> {test.rating || 4.8} Rating
                           </div>
 
-                          {exhausted ? (
+                          {isLocked ? (
+                            <button 
+                              onClick={() => navigate(`/pricing`)}
+                              className="primary-gradient" 
+                              style={{ 
+                                padding: '1rem 2rem', 
+                                borderRadius: 'var(--radius-md)', 
+                                color: 'white', 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                gap: '0.8rem',
+                                fontWeight: 800,
+                                border: 'none',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              <Lock size={18} /> Unlock Premium
+                            </button>
+                          ) : exhausted ? (
                             <div style={{
                               display: 'flex',
                               alignItems: 'center',

@@ -8,91 +8,93 @@ const LandingPage = () => {
       {/* Hero Section */}
       <section style={{
         padding: '8rem 5% 6rem',
-        background: 'radial-gradient(circle at 100% 0%, var(--primary-container) 0%, var(--surface) 100%)',
+        background: 'linear-gradient(135deg, var(--primary) 0%, #0d2c4b 100%)',
         position: 'relative',
         overflow: 'hidden'
       }}>
         <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '4rem', alignItems: 'center' }}>
-          <div>
+          <div style={{ position: 'relative', zIndex: 2 }}>
             <div style={{
               display: 'inline-flex',
               alignItems: 'center',
               gap: '0.6rem',
               padding: '0.5rem 1.2rem',
-              background: 'white',
+              background: 'rgba(255, 255, 255, 0.1)',
+              backdropFilter: 'blur(10px)',
               borderRadius: '30px',
-              color: 'var(--primary)',
+              color: 'var(--accent)',
               fontSize: '0.85rem',
               fontWeight: 700,
               marginBottom: '2.5rem',
-              boxShadow: '0 4px 12px rgba(0, 55, 176, 0.05)'
+              border: '1px solid rgba(255, 255, 255, 0.2)'
             }}>
-              <Zap size={14} fill="var(--primary)" />
-              Mcqvitals • THE SCHOLARLY ATHENEUM
+              <Zap size={14} fill="var(--accent)" />
+              McqVitals • Elevate Your Medical Learning.
             </div>
             <h1 style={{
               fontSize: 'clamp(3rem, 6vw, 5.5rem)',
-              lineHeight: 1.05,
-              marginBottom: '2rem',
-              color: 'var(--on-surface)'
+              lineHeight: 1.1,
+              marginBottom: '1.5rem',
+              color: 'white'
             }}>
-              Practice Smarter. <span className="text-gradient">Score Higher.</span>
+              Unlock Your <br />
+              <span style={{ color: 'var(--accent)' }}>Medical Potential</span>
             </h1>
             <p style={{
-              fontSize: '1.4rem',
-              color: 'var(--on-surface-variant)',
+              fontSize: '1.2rem',
+              color: 'rgba(255, 255, 255, 0.8)',
               marginBottom: '3.5rem',
-              maxWidth: '600px',
-              lineHeight: 1.5
+              maxWidth: '550px',
+              lineHeight: 1.6
             }}>
-              We moved beyond the transactional to create a premium library-grade digital experience for focused intellect. Experience adaptive learning modules that predict your performance.
+              Elevate your medical test preparation with our comprehensive assessment platform. Experience timed modules and unlock premium practice tests today.
             </p>
             <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
-              <Link to="/register" className="primary-gradient" style={{
-                padding: '1.4rem 3rem',
+              <Link to="/register" style={{
+                padding: '1.2rem 2.5rem',
                 borderRadius: 'var(--radius-md)',
-                color: 'white',
-                fontWeight: 750,
-                fontSize: '1.15rem',
+                background: 'var(--accent)',
+                color: 'var(--primary)',
+                fontWeight: 800,
+                fontSize: '1.1rem',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.8rem',
-                boxShadow: '0 20px 40px -10px rgba(0, 55, 176, 0.3)',
-                textDecoration: 'none'
+                boxShadow: '0 10px 30px -10px rgba(64, 224, 208, 0.5)',
+                textDecoration: 'none',
+                transition: 'all 0.3s ease'
               }}>
-                Start Your Journey <ArrowRight size={22} />
+                Start Learning Now <ArrowRight size={22} />
               </Link>
             </div>
           </div>
 
-          <div style={{ position: 'relative' }}>
-            <div className="section-tonal" style={{
-              padding: '2.5rem',
+          <div style={{ position: 'relative', display: 'flex', justifyContent: 'center', zIndex: 1 }}>
+            <div style={{
+              width: '100%',
+              maxWidth: '500px',
               aspectRatio: '1',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              position: 'relative',
-              zIndex: 2
-            }}>
-              <div style={{ marginBottom: '2rem' }}>
-                <div style={{ fontSize: '0.8rem', color: 'var(--primary)', fontWeight: 800, textTransform: 'uppercase', marginBottom: '0.5rem' }}>Current Velocity</div>
-                <div style={{ fontSize: '3.5rem', fontWeight: 800 }}>84.2 <span style={{ fontSize: '1.5rem', color: 'var(--on-surface-variant)' }}>XP/day</span></div>
-              </div>
-              <p style={{ fontSize: '1.1rem', color: 'var(--on-surface-variant)', fontWeight: 500 }}>
-                You're 12% closer to your Goal Score today. Peak performance detected in Quantitative Reasoning.
-              </p>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginTop: '3rem' }}>
-                <div className="card-tonal" style={{ padding: '1.2rem' }}>
-                  <div style={{ fontWeight: 800, fontSize: '1.2rem', marginBottom: '0.3rem' }}>92%</div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--on-surface-variant)' }}>Accuracy</div>
-                </div>
-                <div className="card-tonal" style={{ padding: '1.2rem' }}>
-                  <div style={{ fontWeight: 800, fontSize: '1.2rem', marginBottom: '0.3rem' }}>+128</div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--on-surface-variant)' }}>Rank Shift</div>
-                </div>
-              </div>
-            </div>
+              borderRadius: '50%',
+              background: 'radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%)',
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              zIndex: 1
+            }}></div>
+            <img 
+              src="/medical_hero.png" 
+              alt="Medical Student studying" 
+              style={{
+                width: '100%',
+                maxWidth: '600px',
+                height: 'auto',
+                objectFit: 'contain',
+                position: 'relative',
+                zIndex: 2,
+                filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.3))'
+              }} 
+            />
           </div>
         </div>
       </section>
@@ -101,9 +103,9 @@ const LandingPage = () => {
       <section style={{ padding: '8rem 5%', background: 'var(--surface-lowest)' }}>
         <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '6rem' }}>
-            <h2 style={{ fontSize: '3rem', marginBottom: '1.5rem' }}>A Premium Academic Ecosystem</h2>
+            <h2 style={{ fontSize: '3rem', marginBottom: '1.5rem' }}>A Comprehensive Assessment Ecosystem</h2>
             <p style={{ color: 'var(--on-surface-variant)', fontSize: '1.2rem', maxWidth: '700px', margin: '0 auto' }}>
-              Designed for the rigors of graduate-level study, focusing on the cognitive patterns that lead to mastery.
+              Designed for focused test preparation, providing detailed analytics and realistic proctored environments to help you succeed.
             </p>
           </div>
 
@@ -115,13 +117,13 @@ const LandingPage = () => {
                 icon: <BarChart3 size={32} />
               },
               {
-                title: 'Global Library',
-                desc: 'Access all peer-reviewed papers and resources instantly through our integrated research portal.',
+                title: 'Extensive Question Bank',
+                desc: 'Access hundreds of practice tests and premium modules across various subjects instantly.',
                 icon: <BookOpen size={32} />
               },
               {
-                title: 'Focused Workspace',
-                desc: 'A distraction-free environment that maximizes flow-state and cognitive retention during high-stakes prep.',
+                title: 'Proctored Environment',
+                desc: 'A distraction-free, timed test interface that simulates real exam conditions.',
                 icon: <Shield size={32} />
               }
             ].map((f, i) => (
@@ -148,16 +150,16 @@ const LandingPage = () => {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '3rem' }}>
             <div className="card-tonal" style={{ padding: '4rem' }}>
-              <h3 style={{ fontSize: '2rem', marginBottom: '1rem' }}>Scholar</h3>
-              <p style={{ color: 'var(--on-surface-variant)', marginBottom: '3rem' }}>Perfect for undergraduates and exam prep.</p>
+              <h3 style={{ fontSize: '2rem', marginBottom: '1rem' }}>Free Tier</h3>
+              <p style={{ color: 'var(--on-surface-variant)', marginBottom: '3rem' }}>Get started with basic features.</p>
               <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0.5rem', marginBottom: '4rem' }}>
-                <span style={{ fontSize: '4rem', fontWeight: 800, lineHeight: 1 }}>₹299</span>
-                <span style={{ color: 'var(--on-surface-variant)', marginBottom: '0.8rem' }}>/mo</span>
+                <span style={{ fontSize: '4rem', fontWeight: 800, lineHeight: 1 }}>₹0</span>
+                <span style={{ color: 'var(--on-surface-variant)', marginBottom: '0.8rem' }}>/forever</span>
               </div>
               <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '1.2rem', marginBottom: '4rem' }}>
-                {['Unlimited Practice Tests', 'Basic Performance Tracking', 'Standard Library Access'].map(item => (
+                {['Access to basic tests', 'Limited performance tracking', 'Standard question bank'].map(item => (
                   <li key={item} style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', fontWeight: 500 }}>
                     <CheckCircle size={20} color="var(--success)" /> {item}
                   </li>
@@ -173,20 +175,48 @@ const LandingPage = () => {
                 textDecoration: 'none',
                 color: 'var(--on-surface)'
               }}>
-                Choose Scholar
+                Get Started
+              </Link>
+            </div>
+
+            <div className="card-tonal" style={{ padding: '4rem' }}>
+              <h3 style={{ fontSize: '2rem', marginBottom: '1rem' }}>Monthly Pro</h3>
+              <p style={{ color: 'var(--on-surface-variant)', marginBottom: '3rem' }}>Perfect for standard test prep.</p>
+              <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0.5rem', marginBottom: '4rem' }}>
+                <span style={{ fontSize: '4rem', fontWeight: 800, lineHeight: 1 }}>₹299</span>
+                <span style={{ color: 'var(--on-surface-variant)', marginBottom: '0.8rem' }}>/mo</span>
+              </div>
+              <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '1.2rem', marginBottom: '4rem' }}>
+                {['Access to all intermediate tests', 'Detailed performance analytics', 'Cancel anytime'].map(item => (
+                  <li key={item} style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', fontWeight: 500 }}>
+                    <CheckCircle size={20} color="var(--success)" /> {item}
+                  </li>
+                ))}
+              </ul>
+              <Link to="/register" style={{
+                display: 'block',
+                textAlign: 'center',
+                padding: '1.2rem',
+                borderRadius: 'var(--radius-md)',
+                border: '2px solid var(--outline-variant)',
+                fontWeight: 700,
+                textDecoration: 'none',
+                color: 'var(--on-surface)'
+              }}>
+                Get Started
               </Link>
             </div>
 
             <div className="card-tonal" style={{ padding: '4rem', background: 'var(--on-surface)', color: 'white', position: 'relative' }}>
               <div style={{ position: 'absolute', top: '2rem', right: '2rem', background: 'var(--primary)', padding: '0.4rem 1rem', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 800 }}>MOST POPULAR</div>
-              <h3 style={{ fontSize: '2rem', marginBottom: '1rem' }}>Fellow</h3>
-              <p style={{ opacity: 0.7, marginBottom: '3rem' }}>Designed for PhD candidates and Professional Educators.</p>
+              <h3 style={{ fontSize: '2rem', marginBottom: '1rem' }}>Yearly Pro</h3>
+              <p style={{ opacity: 0.7, marginBottom: '3rem' }}>Designed for serious candidates aiming for top percentiles.</p>
               <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0.5rem', marginBottom: '4rem' }}>
-                <span style={{ fontSize: '4rem', fontWeight: 800, lineHeight: 1 }}>₹1299</span>
+                <span style={{ fontSize: '4rem', fontWeight: 800, lineHeight: 1 }}>₹1200</span>
                 <span style={{ opacity: 0.7, marginBottom: '0.8rem' }}>/yr</span>
               </div>
               <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '1.2rem', marginBottom: '4rem' }}>
-                {['AI-Driven Essay Analysis', 'Predictive Performance HUD', 'Priority Resource Sourcing', 'Offline Workspace Mode'].map(item => (
+                {['Unlimited Test Attempts', 'Advanced Analytics', 'Premium Assessments Access', 'Priority Support'].map(item => (
                   <li key={item} style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', fontWeight: 500 }}>
                     <CheckCircle size={20} color="var(--primary)" /> {item}
                   </li>
@@ -201,7 +231,7 @@ const LandingPage = () => {
                 color: 'white',
                 textDecoration: 'none'
               }}>
-                Become a Fellow
+                Upgrade to Pro
               </Link>
             </div>
           </div>

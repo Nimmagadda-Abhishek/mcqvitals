@@ -20,16 +20,7 @@ const Navbar = () => {
       borderBottom: '1px solid var(--outline-variant)'
     }}>
       <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-        <div className="primary-gradient" style={{
-          width: '32px',
-          height: '32px',
-          borderRadius: '8px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}>
-          <BookOpen size={18} color="white" />
-        </div>
+        <img src="/logo.png" alt="Mcqvitals Logo" style={{ height: '48px', borderRadius: '8px', objectFit: 'contain' }} />
         <span style={{ 
           fontFamily: 'var(--font-display)', 
           fontWeight: 800, 
@@ -46,10 +37,10 @@ const Navbar = () => {
         {isLoggedIn && (
           <>
             <Link to="/dashboard" style={{ fontSize: '0.9rem', fontWeight: 500, color: 'var(--on-surface-variant)' }}>Dashboard</Link>
-            <a href="/" style={{ fontSize: '0.9rem', fontWeight: 500, color: 'var(--on-surface-variant)' }}>Solutions</a>
+            <Link to="/solutions-review" style={{ fontSize: '0.9rem', fontWeight: 500, color: 'var(--on-surface-variant)', textDecoration: 'none' }}>Solutions</Link>
           </>
         )}
-        <a href="/" style={{ fontSize: '0.9rem', fontWeight: 500, color: 'var(--on-surface-variant)' }}>Pricing</a>
+        <Link to="/pricing" style={{ fontSize: '0.9rem', fontWeight: 500, color: 'var(--on-surface-variant)', textDecoration: 'none' }}>Pricing</Link>
       </div>
 
       <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>

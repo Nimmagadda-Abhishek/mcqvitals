@@ -42,20 +42,7 @@ const ForgotPassword = () => {
     >
       <div className="premium-card" style={{ maxWidth: '520px', width: '100%', padding: '3rem' }}>
         <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-          <div
-            className="primary-gradient"
-            style={{
-              width: '48px',
-              height: '48px',
-              borderRadius: '12px',
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginBottom: '1.5rem',
-            }}
-          >
-            <BookOpen size={24} color="white" />
-          </div>
+          <img src="/logo.png" alt="Mcqvitals Logo" style={{ height: '72px', borderRadius: '12px', marginBottom: '1.5rem', objectFit: 'contain' }} />
           <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Reset Password</h1>
           <p style={{ color: 'var(--on-surface-variant)', fontSize: '0.9rem' }}>
             Enter your email and we’ll send an OTP to verify your request.

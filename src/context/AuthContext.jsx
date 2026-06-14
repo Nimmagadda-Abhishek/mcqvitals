@@ -27,6 +27,14 @@ export const AuthProvider = ({ children }) => {
       try {
         setUser(JSON.parse(storedUser));
         setIsLoggedIn(true);
+        // Fetch fresh profile in the background to sync subscription status
+        api.auth.getProfile().then(data => {
+            setUser(prev => {
+                const newUser = { ...prev, ...data };
+                localStorage.setItem('user', JSON.stringify(newUser));
+                return newUser;
+            });
+        }).catch(err => console.error("Background profile fetch failed", err));
       } catch (e) {
         localStorage.removeItem('user');
         localStorage.removeItem('token');
@@ -68,14 +76,21 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const data = await api.auth.login({ email, password });
+      let deviceId = localStorage.getItem('app_device_id');
+      if (!deviceId) {
+        deviceId = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2) + Date.now().toString(36);
+        localStorage.setItem('app_device_id', deviceId);
+      }
+
+      const data = await api.auth.login({ email, password, deviceId });
       localStorage.setItem('user', JSON.stringify(data));
       localStorage.setItem('token', data.token);
       setUser(data);
       setIsLoggedIn(true);
       return { success: true };
     } catch (error) {
-      return { success: false, message: error.message };
+      // Pass the whole error object or message/flags if we have deviceMismatch
+      return { success: false, message: error.message, errorData: error };
     }
   };
 
@@ -104,7 +119,11 @@ export const AuthProvider = ({ children }) => {
   const getProfile = async () => {
     try {
       const data = await api.auth.getProfile();
-      setUser(prev => ({ ...prev, ...data }));
+      setUser(prev => {
+        const newUser = { ...prev, ...data };
+        localStorage.setItem('user', JSON.stringify(newUser));
+        return newUser;
+      });
       return data;
     } catch (error) {
       console.error('Failed to fetch profile', error);

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import {
   Search,
   FileText,
@@ -10,38 +11,21 @@ import {
   Clock,
   Eye,
   X,
-  HardDrive,
   AlertCircle,
-  FolderOpen
+  FolderOpen,
+  Lock,
+  ExternalLink
 } from 'lucide-react';
-import FileViewer, { getFileCategory } from './FileViewer';
 import { CardShimmer } from './common/Shimmer';
 import useScreenCapturePrevention from '../hooks/useScreenCapturePrevention';
-
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
-
-/**
- * Format bytes into human-readable size.
- */
-const formatSize = (bytes) => {
-  if (!bytes || bytes === 0) return '—';
-  const units = ['B', 'KB', 'MB', 'GB'];
-  let i = 0;
-  let size = bytes;
-  while (size >= 1024 && i < units.length - 1) {
-    size /= 1024;
-    i++;
-  }
-  return `${size.toFixed(i === 0 ? 0 : 1)} ${units[i]}`;
-};
+import api from '../services/api';
 
 /**
  * Return an icon component for the file category.
  */
-const getFileIcon = (filename) => {
-  const category = getFileCategory(filename);
-  switch (category) {
-    case 'pdf': return <FileText size={22} />;
+const getFileIcon = (type) => {
+  switch (type) {
+    case 'document': return <FileText size={22} />;
     case 'image': return <Image size={22} />;
     case 'video': return <Film size={22} />;
     default: return <File size={22} />;
@@ -51,15 +35,16 @@ const getFileIcon = (filename) => {
 /**
  * Return a color scheme for the file category badge.
  */
-const getCategoryColors = (filename) => {
-  const category = getFileCategory(filename);
-  switch (category) {
-    case 'pdf':
-      return { bg: '#fde8e8', color: '#b91c1c', label: 'PDF' };
+const getCategoryColors = (type) => {
+  switch (type) {
+    case 'document':
+      return { bg: '#fde8e8', color: '#b91c1c', label: 'Document' };
     case 'image':
       return { bg: '#dbeafe', color: '#1d4ed8', label: 'Image' };
     case 'video':
       return { bg: '#ede9fe', color: '#6d28d9', label: 'Video' };
+    case 'link':
+      return { bg: '#dcfce7', color: '#15803d', label: 'Link' };
     default:
       return { bg: 'var(--surface-high)', color: 'var(--on-surface-variant)', label: 'File' };
   }
@@ -67,7 +52,8 @@ const getCategoryColors = (filename) => {
 
 const FileList = () => {
   const { user } = useAuth();
-  const [files, setFiles] = useState([]);
+  const navigate = useNavigate();
+  const [resources, setResources] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -76,7 +62,7 @@ const FileList = () => {
   const [isBlurred, setIsBlurred] = useState(false);
   const containerRef = useRef(null);
 
-  const filters = ['All', 'pdf', 'image', 'video'];
+  const filters = ['All', 'document', 'image', 'video', 'link'];
 
   // Watermark text based on logged-in user
   const watermarkText = user
@@ -92,7 +78,7 @@ const FileList = () => {
   );
 
   useEffect(() => {
-    fetchFiles();
+    fetchResources();
 
     // Blur content when tab/window loses focus (deters alt-tab screenshots)
     const handleVisibilityChange = () => {
@@ -117,17 +103,10 @@ const FileList = () => {
     };
   }, []);
 
-  const fetchFiles = async () => {
+  const fetchResources = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const headers = {};
-      if (token) headers['Authorization'] = `Bearer ${token}`;
-
-      const res = await fetch(`${BASE_URL}/files`, { headers });
-      if (!res.ok) throw new Error('Failed to fetch files');
-
-      const data = await res.json();
-      setFiles(data);
+      const data = await api.resources.getAll();
+      setResources(data);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -135,19 +114,113 @@ const FileList = () => {
     }
   };
 
-  // Strip path prefix for display (show only filename after last /)
-  const getDisplayName = (filename) => {
-    const parts = filename.split('/');
-    return parts[parts.length - 1];
-  };
-
-  const filteredFiles = files.filter(file => {
-    const displayName = getDisplayName(file.filename);
-    const matchesSearch = displayName.toLowerCase().includes(searchTerm.toLowerCase());
-    const category = getFileCategory(file.filename);
-    const matchesFilter = activeFilter === 'All' || category === activeFilter;
+  const filteredResources = resources.filter(res => {
+    const matchesSearch = res.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                          res.category.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesFilter = activeFilter === 'All' || res.type === activeFilter;
     return matchesSearch && matchesFilter;
   });
+
+  const getYouTubeId = (url) => {
+    const match = url.match(/(?:v=|youtu\.be\/)([^&?/]+)/);
+    return match ? match[1] : null;
+  };
+
+  const getVimeoId = (url) => {
+    const match = url.match(/vimeo\.com\/(\d+)/);
+    return match ? match[1] : null;
+  };
+
+  const renderViewer = (resource) => {
+    if (resource.type === 'video') {
+      const youtubeId = getYouTubeId(resource.url);
+      const vimeoId = getVimeoId(resource.url);
+
+      if (youtubeId) {
+        return (
+          <iframe
+            src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1`}
+            style={{ width: '100%', height: '100%', border: 'none' }}
+            allow="autoplay; fullscreen; picture-in-picture"
+            allowFullScreen
+            title={resource.title}
+          />
+        );
+      } else if (vimeoId) {
+        return (
+          <iframe
+            src={`https://player.vimeo.com/video/${vimeoId}?autoplay=1`}
+            style={{ width: '100%', height: '100%', border: 'none' }}
+            allow="autoplay; fullscreen; picture-in-picture"
+            allowFullScreen
+            title={resource.title}
+          />
+        );
+      } else {
+        return (
+          <video
+            controls
+            autoPlay
+            controlsList="nodownload"
+            style={{ maxWidth: '100%', maxHeight: '100%', outline: 'none' }}
+            src={resource.url}
+          >
+            Your browser does not support the video tag.
+          </video>
+        );
+      }
+    }
+
+    if (resource.type === 'image') {
+      return (
+        <img
+          src={resource.url}
+          alt={resource.title}
+          style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
+        />
+      );
+    }
+
+    if (resource.type === 'link') {
+      return (
+        <div style={{ textAlign: 'center', padding: '3rem', color: '#333' }}>
+          <ExternalLink size={48} style={{ marginBottom: '1.5rem', color: 'var(--primary)' }} />
+          <h3 style={{ marginBottom: '0.5rem', fontSize: '1.3rem' }}>{resource.title}</h3>
+          <p style={{ color: '#666', marginBottom: '2rem', fontSize: '0.95rem' }}>
+            External links cannot be previewed here due to security restrictions.
+          </p>
+          <a
+            href={resource.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              background: 'var(--primary)',
+              color: 'white',
+              padding: '0.8rem 2rem',
+              borderRadius: '10px',
+              textDecoration: 'none',
+              fontWeight: 700,
+              fontSize: '0.95rem',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem'
+            }}
+          >
+            <ExternalLink size={16} /> Open in New Tab
+          </a>
+        </div>
+      );
+    }
+
+    // Default: document (PDF, DOCX, PPTX, etc.) — Google Docs Viewer
+    return (
+      <iframe
+        src={`https://docs.google.com/viewer?url=${encodeURIComponent(resource.url)}&embedded=true`}
+        style={{ width: '100%', height: '100%', border: 'none' }}
+        title={resource.title}
+      />
+    );
+  };
 
   return (
     <div
@@ -162,7 +235,7 @@ const FileList = () => {
       onContextMenu={(e) => e.preventDefault()}
       onDragStart={(e) => e.preventDefault()}
     >
-      {/* ─── Blur Overlay (activates when tab/window loses focus) ─── */}
+      {/* ─── Blur Overlay ─── */}
       {isBlurred && (
         <div style={{
           position: 'fixed',
@@ -208,6 +281,7 @@ const FileList = () => {
           </p>
         </div>
       )}
+
       {/* ─── Header ─── */}
       <header style={{ marginBottom: '3.5rem' }}>
         <div style={{
@@ -221,7 +295,7 @@ const FileList = () => {
           Knowledge Repository
         </div>
         <h1 style={{ fontSize: '2.5rem', marginBottom: '1.5rem' }}>
-          Global Scholarly Library
+          Global Question Bank
         </h1>
         <p style={{
           color: 'var(--on-surface-variant)',
@@ -307,7 +381,7 @@ const FileList = () => {
           <h2 style={{ marginBottom: '0.5rem' }}>Connection Error</h2>
           <p style={{ color: 'var(--on-surface-variant)', marginBottom: '1.5rem' }}>{error}</p>
           <button
-            onClick={() => { setError(null); setLoading(true); fetchFiles(); }}
+            onClick={() => { setError(null); setLoading(true); fetchResources(); }}
             style={{
               background: 'var(--primary)',
               color: 'white',
@@ -332,21 +406,29 @@ const FileList = () => {
       }}>
         {loading ? (
           <CardShimmer cards={6} />
-        ) : filteredFiles.map((file, index) => {
-          const displayName = getDisplayName(file.filename);
-          const categoryColors = getCategoryColors(file.filename);
+        ) : filteredResources.map((res, index) => {
+          const categoryColors = getCategoryColors(res.type);
+          const isLocked = !res.isFree && user?.subscription?.status !== 'active';
 
           return (
             <div
-              key={file.filename + index}
+              key={res._id || index}
               className="premium-card"
-              onClick={() => setSelectedFile(file)}
+              onClick={() => {
+                if (isLocked) {
+                  navigate('/pricing');
+                } else {
+                  setSelectedFile(res);
+                }
+              }}
               style={{
                 display: 'flex',
                 flexDirection: 'column',
                 height: '100%',
                 cursor: 'pointer',
-                position: 'relative'
+                position: 'relative',
+                opacity: isLocked ? 0.8 : 1,
+                transition: 'all 0.2s ease'
               }}
             >
               {/* Top Row: Icon + Badge */}
@@ -360,25 +442,41 @@ const FileList = () => {
                   width: '52px',
                   height: '52px',
                   borderRadius: '14px',
-                  background: categoryColors.bg,
+                  background: isLocked ? 'var(--error-container)' : categoryColors.bg,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: categoryColors.color
+                  color: isLocked ? 'var(--error)' : categoryColors.color
                 }}>
-                  {getFileIcon(file.filename)}
+                  {isLocked ? <Lock size={22} /> : getFileIcon(res.type)}
                 </div>
-                <div style={{
-                  fontSize: '0.75rem',
-                  fontWeight: 700,
-                  color: categoryColors.color,
-                  background: categoryColors.bg,
-                  padding: '0.35rem 0.85rem',
-                  borderRadius: '20px',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.04em'
-                }}>
-                  {categoryColors.label}
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <div style={{
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                    color: 'var(--on-surface-variant)',
+                    background: 'var(--surface-high)',
+                    padding: '0.35rem 0.85rem',
+                    borderRadius: '20px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.04em'
+                  }}>
+                    {res.category}
+                  </div>
+                  {!res.isFree && (
+                    <div style={{
+                      fontSize: '0.75rem',
+                      fontWeight: 800,
+                      color: 'white',
+                      background: 'var(--primary)',
+                      padding: '0.35rem 0.85rem',
+                      borderRadius: '20px',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.04em'
+                    }}>
+                      Premium
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -389,7 +487,7 @@ const FileList = () => {
                 lineHeight: 1.35,
                 wordBreak: 'break-word'
               }}>
-                {displayName}
+                {res.title}
               </h3>
 
               {/* Metadata Row */}
@@ -403,7 +501,7 @@ const FileList = () => {
               }}>
                 <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
                   {/* Upload Date */}
-                  {file.uploadedAt && (
+                  {res.createdAt && (
                     <div style={{
                       display: 'flex',
                       alignItems: 'center',
@@ -412,31 +510,18 @@ const FileList = () => {
                       color: 'var(--on-surface-variant)'
                     }}>
                       <Clock size={14} />
-                      {new Date(file.uploadedAt).toLocaleDateString()}
+                      {new Date(res.createdAt).toLocaleDateString()}
                     </div>
                   )}
-                  {/* File Size */}
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.4rem',
-                    fontSize: '0.8rem',
-                    fontWeight: 600,
-                    color: 'var(--primary)'
-                  }}>
-                    <HardDrive size={14} />
-                    {formatSize(file.size)}
-                  </div>
                 </div>
 
                 {/* View Button */}
                 <button
-                  onClick={(e) => { e.stopPropagation(); setSelectedFile(file); }}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
                     gap: '0.5rem',
-                    color: 'var(--primary)',
+                    color: isLocked ? 'var(--error)' : 'var(--primary)',
                     fontWeight: 700,
                     fontSize: '0.9rem',
                     background: 'none',
@@ -445,7 +530,7 @@ const FileList = () => {
                     padding: 0
                   }}
                 >
-                  <Eye size={16} /> View
+                  {isLocked ? <><Lock size={16} /> Unlock</> : <><Eye size={16} /> View</>}
                 </button>
               </div>
             </div>
@@ -454,7 +539,7 @@ const FileList = () => {
       </div>
 
       {/* ─── Empty State ─── */}
-      {!loading && !error && filteredFiles.length === 0 && (
+      {!loading && !error && filteredResources.length === 0 && (
         <div style={{
           textAlign: 'center',
           padding: '6rem 2rem',
@@ -466,7 +551,7 @@ const FileList = () => {
           <p style={{ color: 'var(--on-surface-variant)' }}>
             {searchTerm || activeFilter !== 'All'
               ? 'Try adjusting your search terms or filters.'
-              : 'No files have been uploaded yet.'}
+              : 'No resources have been uploaded yet.'}
           </p>
         </div>
       )}
@@ -506,10 +591,10 @@ const FileList = () => {
                 overflow: 'hidden',
                 textOverflow: 'ellipsis'
               }}>
-                {getDisplayName(selectedFile.filename)}
+                {selectedFile.title}
               </h2>
               <p style={{ opacity: 0.7, fontSize: '0.9rem' }}>
-                {getCategoryColors(selectedFile.filename).label} • {formatSize(selectedFile.size)} • Knowledge Repository
+                {getCategoryColors(selectedFile.type).label} • Knowledge Repository
               </p>
             </div>
             <button
@@ -547,7 +632,7 @@ const FileList = () => {
             justifyContent: 'center',
             position: 'relative'
           }}>
-            <FileViewer filename={selectedFile.filename} />
+            {renderViewer(selectedFile)}
 
             {/* ─── Watermark Overlay ─── */}
             <div

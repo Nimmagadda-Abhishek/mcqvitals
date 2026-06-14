@@ -39,17 +39,7 @@ const Register = () => {
     }}>
       <div className="premium-card" style={{ maxWidth: '500px', width: '100%', padding: '3rem' }}>
         <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-          <div className="primary-gradient" style={{
-            width: '48px',
-            height: '48px',
-            borderRadius: '12px',
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginBottom: '1.5rem'
-          }}>
-            <ShieldCheck size={24} color="white" />
-          </div>
+          <img src="/logo.png" alt="Mcqvitals Logo" style={{ height: '72px', borderRadius: '12px', marginBottom: '1.5rem', objectFit: 'contain' }} />
           <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Create Account</h1>
           <p style={{ color: 'var(--on-surface-variant)', fontSize: '0.9rem' }}>
             Start your journey towards academic excellence today.
@@ -142,7 +132,7 @@ const Register = () => {
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', padding: '0.5rem 0' }}>
             <input type="checkbox" id="terms" required />
             <label htmlFor="terms" style={{ fontSize: '0.85rem', color: 'var(--on-surface-variant)' }}>
-              I agree to the <span style={{ color: 'var(--primary)', fontWeight: 600 }}>Terms of Service</span> and <span style={{ color: 'var(--primary)', fontWeight: 600 }}>Privacy Policy</span>.
+              I agree to the <Link to="/terms-of-service" style={{ color: 'var(--primary)', fontWeight: 600, textDecoration: 'none' }}>Terms of Service</Link> and <Link to="/privacy-policy" style={{ color: 'var(--primary)', fontWeight: 600, textDecoration: 'none' }}>Privacy Policy</Link>.
             </label>
           </div>
 
