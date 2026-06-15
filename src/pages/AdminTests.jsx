@@ -452,7 +452,7 @@ const AdminTests = () => {
             </header>
 
             <form onSubmit={handleCreateTest} style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '2rem' }}>
                 <div style={{ gridColumn: 'span 2' }}>
                   <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 800, marginBottom: '0.8rem', color: 'var(--on-surface-variant)', letterSpacing: '0.05em' }}>MODULE TITLE</label>
                   <input required className="input-premium" type="text" value={newTest.title} onChange={(e) => setNewTest({...newTest, title: e.target.value})} placeholder="e.g. Quantum Computing Fundamentals" />
@@ -551,7 +551,7 @@ const AdminTests = () => {
                 <textarea required className="input-premium" style={{ minHeight: '80px', resize: 'none' }} value={newQuestion.text} onChange={(e) => setNewQuestion({...newQuestion, text: e.target.value})} />
               </div>
               
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '1.5rem' }}>
                 {newQuestion.options.map((opt, i) => (
                   <div key={i}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
@@ -725,7 +725,7 @@ const AdminTests = () => {
             </header>
 
             <form onSubmit={handleUpdateTest} style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '2rem' }}>
                 <div style={{ gridColumn: 'span 2' }}>
                   <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 800, marginBottom: '0.8rem', color: 'var(--on-surface-variant)', letterSpacing: '0.05em' }}>MODULE TITLE</label>
                   <input required className="input-premium" type="text" value={editingTest.title} onChange={(e) => setEditingTest({...editingTest, title: e.target.value})} placeholder="e.g. Quantum Computing Fundamentals" />
@@ -827,13 +827,13 @@ const AdminTests = () => {
             </button>
 
             <header style={{ marginBottom: '3rem' }}>
-              <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
+              <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
                 <div className="badge-tonal" style={{ background: 'var(--primary-container)', color: 'var(--primary)', fontWeight: 800 }}>{detailedTest.category}</div>
                 <div className="badge-tonal" style={{ background: 'var(--surface-high)', color: 'var(--on-surface)', fontWeight: 800 }}>{detailedTest.difficulty}</div>
                 <div className="badge-tonal" style={{ background: 'var(--surface-high)', color: 'var(--on-surface)', fontWeight: 800 }}>{detailedTest.duration} mins</div>
                 <div className="badge-tonal" style={{ background: 'var(--success-container)', color: 'var(--success)', fontWeight: 800 }}>★ {detailedTest.rating || 5}/5</div>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
                 <h2 style={{ fontSize: '2.5rem', fontWeight: 800 }}>{detailedTest.title}</h2>
                 <button 
                   onClick={() => { setEditingTest(detailedTest); setIsEditModalOpen(true); }}
@@ -916,7 +916,7 @@ const AdminTests = () => {
                             onChange={(newImages) => setEditingData({...editingData, images: newImages})} 
                           />
 
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '1rem' }}>
                           {editingData.options.map((opt, oIdx) => (
                             <div key={oIdx} className="card-tonal" style={{ padding: '1rem' }}>
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
@@ -1050,7 +1050,7 @@ const AdminTests = () => {
                         )}
 
 
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '2rem' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '1rem', marginBottom: '2rem' }}>
                           {q.options.map((opt, optIdx) => {
                             const qType = q.questionType || 'single';
                             const isSingle = qType === 'single';
