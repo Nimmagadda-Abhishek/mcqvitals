@@ -97,31 +97,12 @@ const LandingPage = () => {
             </div>
           </div>
 
-          <div style={{ position: 'relative', display: 'flex', justifyContent: 'center', zIndex: 1 }}>
-            <div style={{
-              width: '100%',
-              maxWidth: '500px',
-              aspectRatio: '1',
-              borderRadius: '50%',
-              background: 'radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%)',
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              zIndex: 1
-            }}></div>
+          <div className="hero-image-wrapper">
+            <div className="hero-image-backdrop"></div>
             <img 
               src="/medical_hero.png" 
               alt="Medical Student studying" 
-              style={{
-                width: '100%',
-                maxWidth: '600px',
-                height: 'auto',
-                objectFit: 'contain',
-                position: 'relative',
-                zIndex: 2,
-                filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.3))'
-              }} 
+              className="hero-image"
             />
           </div>
         </div>
