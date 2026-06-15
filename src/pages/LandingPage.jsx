@@ -5,6 +5,34 @@ import { ArrowRight, CheckCircle, Zap, Shield, BookOpen, BarChart3, Star, ArrowU
 const LandingPage = () => {
   return (
     <div className="landing-page">
+      {/* Promotional Banner */}
+      <div style={{
+        background: 'var(--accent)',
+        color: '#0d2c4b',
+        padding: '12px 20px',
+        textAlign: 'center',
+        fontWeight: '700',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: '10px',
+        boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+      }}>
+        <span>🎉 Special Offer: Register now for one month free subscription!</span>
+        <Link to="/register" style={{
+          background: '#0d2c4b',
+          color: 'var(--accent)',
+          padding: '4px 12px',
+          borderRadius: '20px',
+          textDecoration: 'none',
+          fontSize: '0.85rem',
+          fontWeight: 'bold'
+        }}>
+          Claim Now
+        </Link>
+      </div>
+
       {/* Hero Section */}
       <section style={{
         padding: '8rem 5% 6rem',
@@ -12,7 +40,7 @@ const LandingPage = () => {
         position: 'relative',
         overflow: 'hidden'
       }}>
-        <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '4rem', alignItems: 'center' }}>
+        <div className="hero-grid" style={{ maxWidth: '1400px', margin: '0 auto' }}>
           <div style={{ position: 'relative', zIndex: 2 }}>
             <div style={{
               display: 'inline-flex',
@@ -49,7 +77,7 @@ const LandingPage = () => {
             }}>
               Elevate your medical test preparation with our comprehensive assessment platform. Experience timed modules and unlock premium practice tests today.
             </p>
-            <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
+            <div className="flex-wrap-responsive" style={{ justifyContent: 'inherit' }}>
               <Link to="/register" style={{
                 padding: '1.2rem 2.5rem',
                 borderRadius: 'var(--radius-md)',
@@ -143,7 +171,7 @@ const LandingPage = () => {
       {/* Pricing - The Tiers */}
       <section style={{ padding: '8rem 5%', background: 'var(--surface-low)' }}>
         <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '5rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '5rem', flexWrap: 'wrap', gap: '2rem' }}>
             <div>
               <h2 style={{ fontSize: '3rem', marginBottom: '1rem' }}>Invest in Your Intellect.</h2>
               <p style={{ color: 'var(--on-surface-variant)', fontSize: '1.1rem' }}>Choose the tier that aligns with your academic goals.</p>

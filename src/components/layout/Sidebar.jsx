@@ -84,7 +84,7 @@ const Sidebar = () => {
         ))}
       </nav>
 
-      <div style={{ display: 'flex', flexDirection: 'inherit', gap: '0.8rem', marginTop: 'auto', alignItems: 'center' }}>
+      <div className="sidebar-bottom-actions" style={{ display: 'flex', flexDirection: 'inherit', gap: '0.8rem', alignItems: 'center' }}>
         {user?.role !== 'admin' && (
           <NavLink 
             to="/settings"

@@ -314,6 +314,22 @@ const FileList = () => {
           Explore curated academic materials, verified research papers, and lecture
           series uploaded by our academic administration.
         </p>
+        {user?.subscription?.status === 'active' && user?.subscription?.expiryDate && new Date(user.subscription.expiryDate) > new Date() && (
+          <div style={{
+            marginTop: '2rem',
+            padding: '1rem 1.5rem',
+            background: 'var(--primary-container)',
+            color: 'var(--primary)',
+            borderRadius: 'var(--radius-md)',
+            fontWeight: 700,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.5rem'
+          }}>
+            <Clock size={18} />
+            Your free trial access ends in {Math.ceil((new Date(user.subscription.expiryDate) - new Date()) / (1000 * 60 * 60 * 24))} days ({new Date(user.subscription.expiryDate).toLocaleDateString()})
+          </div>
+        )}
       </header>
 
       {/* ─── Search & Filters ─── */}
