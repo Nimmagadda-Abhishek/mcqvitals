@@ -221,7 +221,7 @@ const LandingPage = () => {
               <h3 style={{ fontSize: '2rem', marginBottom: '1rem' }}>Yearly Pro</h3>
               <p style={{ opacity: 0.7, marginBottom: '3rem' }}>Designed for serious candidates aiming for top percentiles.</p>
               <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0.5rem', marginBottom: '4rem' }}>
-                <span style={{ fontSize: '4rem', fontWeight: 800, lineHeight: 1 }}>₹1200</span>
+                <span style={{ fontSize: '4rem', fontWeight: 800, lineHeight: 1 }}>₹1499</span>
                 <span style={{ opacity: 0.7, marginBottom: '0.8rem' }}>/yr</span>
               </div>
               <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '1.2rem', marginBottom: '4rem' }}>

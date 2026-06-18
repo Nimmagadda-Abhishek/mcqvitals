@@ -40,7 +40,7 @@ const Pricing = () => {
     {
       id: 'yearly',
       name: 'Yearly Pro',
-      price: 1200,
+      price: 1499,
       period: 'per year',
       features: [
         'Access to all intermediate tests',

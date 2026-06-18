@@ -73,6 +73,7 @@ const AdminTests = () => {
   const [editingQuestionId, setEditingQuestionId] = useState(null);
   const [editingData, setEditingData] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeCategory, setActiveCategory] = useState(null);
 
   const [newTest, setNewTest] = useState({
     title: '',
@@ -277,10 +278,19 @@ const AdminTests = () => {
     }
   };
 
-  const filteredTests = tests.filter(t => 
-    t.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    t.category.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const uniqueCategories = [...new Set(tests.map(t => t.category))];
+  const categoryStats = uniqueCategories.map(cat => ({
+    name: cat,
+    count: tests.filter(t => t.category === cat).length
+  }));
+
+  const showCategories = !activeCategory && !searchQuery;
+
+  const filteredTests = tests.filter(t => {
+    const matchesSearch = t.title.toLowerCase().includes(searchQuery.toLowerCase()) || t.category.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = !activeCategory || t.category === activeCategory;
+    return matchesSearch && matchesCategory;
+  });
 
   return (
     <div style={{ maxWidth: '1400px', margin: '0 auto', paddingBottom: '5rem', padding: '0 clamp(1rem, 5vw, 2.5rem)' }}>
@@ -311,20 +321,85 @@ const AdminTests = () => {
         </button>
       </header>
 
-      {/* Search Bar */}
-      <div className="card-tonal" style={{ marginBottom: '3rem', display: 'flex', alignItems: 'center', gap: '1.2rem', padding: '1rem 2rem' }}>
-        <Search size={20} color="var(--primary)" />
-        <input 
-          type="text" 
-          placeholder="Filter modules by title or discipline..." 
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          style={{ background: 'none', border: 'none', width: '100%', fontSize: '1rem', color: 'var(--on-surface)', outline: 'none' }}
-        />
+      {/* Search Bar and Back Button */}
+      <div style={{ display: 'flex', gap: '1rem', marginBottom: '3rem', flexWrap: 'wrap' }}>
+        <div className="card-tonal" style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '1.2rem', padding: '1rem 2rem' }}>
+          <Search size={20} color="var(--primary)" />
+          <input 
+            type="text" 
+            placeholder="Filter modules by title or discipline..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={{ background: 'none', border: 'none', width: '100%', fontSize: '1rem', color: 'var(--on-surface)', outline: 'none' }}
+          />
+        </div>
+        {activeCategory && (
+          <button
+            onClick={() => { setActiveCategory(null); setSearchQuery(''); }}
+            style={{
+              padding: '0 1.5rem',
+              borderRadius: '12px',
+              fontWeight: 700,
+              background: 'var(--surface-high)',
+              color: 'var(--on-surface)',
+              border: '1px solid var(--outline-variant)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem'
+            }}
+          >
+            ← Back to Categories
+          </button>
+        )}
       </div>
 
       {loading ? (
         <CardShimmer cards={6} />
+      ) : showCategories ? (
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 300px), 1fr))', 
+          gap: '2rem' 
+        }}>
+          {categoryStats.map(cat => (
+            <div
+              key={cat.name}
+              onClick={() => { setActiveCategory(cat.name); setSearchQuery(''); }}
+              className="card-tonal"
+              style={{
+                cursor: 'pointer',
+                padding: '2.5rem',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '1rem',
+                border: '1px solid var(--outline-variant)',
+                transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                textAlign: 'center'
+              }}
+            >
+              <div style={{ 
+                width: '64px', 
+                height: '64px', 
+                borderRadius: '16px', 
+                background: 'var(--primary-container)', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center',
+                color: 'var(--primary)'
+              }}>
+                <BookOpen size={32} />
+              </div>
+              <div>
+                <h3 style={{ fontSize: '1.4rem', marginBottom: '0.5rem' }}>{cat.name}</h3>
+                <div style={{ color: 'var(--on-surface-variant)', fontWeight: 600, fontSize: '0.9rem' }}>
+                  {cat.count} Module{cat.count !== 1 ? 's' : ''}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 320px), 1fr))', gap: '2rem' }}>
           {filteredTests.map((test) => (

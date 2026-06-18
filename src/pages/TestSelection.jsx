@@ -20,7 +20,7 @@ const TestSelection = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
-  const [activeCategory, setActiveCategory] = useState('All');
+  const [activeCategory, setActiveCategory] = useState(null);
   const [tests, setTests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [attemptMap, setAttemptMap] = useState({}); // testId -> count
@@ -51,11 +51,17 @@ const TestSelection = () => {
     }
   };
 
-  const categories = ['All', ...new Set(tests.map(t => t.category))];
+  const uniqueCategories = [...new Set(tests.map(t => t.category))];
+  const categoryStats = uniqueCategories.map(cat => ({
+    name: cat,
+    count: tests.filter(t => t.category === cat).length
+  }));
+
+  const showCategories = !activeCategory && !searchTerm;
 
   const filteredTests = tests.filter(test => {
     const matchesSearch = test.title.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = activeCategory === 'All' || test.category === activeCategory;
+    const matchesCategory = !activeCategory || test.category === activeCategory;
     return matchesSearch && matchesCategory;
   });
 
@@ -130,36 +136,88 @@ const TestSelection = () => {
         </div>
 
         <div style={{ display: 'flex', gap: '0.8rem', alignItems: 'center', flexWrap: 'wrap' }}>
-          <Filter size={18} style={{ color: 'var(--on-surface-variant)', marginRight: '0.5rem' }} />
-          {categories.map(cat => (
+          {activeCategory && (
             <button
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
+              onClick={() => { setActiveCategory(null); setSearchTerm(''); }}
               style={{
                 padding: '0.6rem 1.4rem',
                 borderRadius: '30px',
                 fontSize: '0.9rem',
                 fontWeight: 700,
-                background: activeCategory === cat ? 'var(--primary)' : 'var(--surface-low)',
-                color: activeCategory === cat ? 'white' : 'var(--on-surface-variant)',
-                transition: 'all 0.2s ease'
+                background: 'var(--surface-high)',
+                color: 'var(--on-surface)',
+                border: '1px solid var(--outline-variant)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
               }}
             >
-              {cat}
+              ← Back to Categories
             </button>
-          ))}
+          )}
         </div>
       </div>
 
       {/* Grid */}
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 420px), 1fr))', 
-        gap: '2.5rem' 
-      }}>
-        {loading ? (
-          <CardShimmer cards={6} />
-        ) : filteredTests.map(test => {
+      {showCategories ? (
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 300px), 1fr))', 
+          gap: '2rem' 
+        }}>
+          {loading ? (
+            <CardShimmer cards={6} />
+          ) : (
+            categoryStats.map(cat => (
+              <div
+                key={cat.name}
+                onClick={() => { setActiveCategory(cat.name); setSearchTerm(''); }}
+                className="card-tonal"
+                style={{
+                  cursor: 'pointer',
+                  padding: '2.5rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '1rem',
+                  border: '1px solid var(--outline-variant)',
+                  transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                  textAlign: 'center'
+                }}
+              >
+                <div style={{ 
+                  width: '72px', 
+                  height: '72px', 
+                  borderRadius: '20px', 
+                  background: 'var(--primary-container)', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center',
+                  color: 'var(--primary)',
+                  marginBottom: '0.5rem'
+                }}>
+                  <BookOpen size={36} />
+                </div>
+                <div>
+                  <h3 style={{ fontSize: '1.5rem', marginBottom: '0.5rem', fontWeight: 800 }}>{cat.name}</h3>
+                  <div style={{ color: 'var(--on-surface-variant)', fontWeight: 700, fontSize: '0.95rem' }}>
+                    {cat.count} Module{cat.count !== 1 ? 's' : ''}
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      ) : (
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 420px), 1fr))', 
+          gap: '2.5rem' 
+        }}>
+          {loading ? (
+            <CardShimmer cards={6} />
+          ) : filteredTests.map(test => {
           const attempts = attemptMap[test._id] || 0;
           const exhausted = attempts >= MAX_ATTEMPTS;
 
@@ -348,7 +406,8 @@ const TestSelection = () => {
                       </div>
           );
         })}
-      </div>
+        </div>
+      )}
 
       {filteredTests.length === 0 && !loading && (
         <div style={{ textAlign: 'center', padding: '6rem', background: 'var(--surface-low)', borderRadius: 'var(--radius-xl)' }}>
