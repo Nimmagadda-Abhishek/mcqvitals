@@ -1,4 +1,4 @@
-const BASE_URL = import.meta.env.VITE_API_URL || 'https://subarctic-referable-strainer.ngrok-free.dev/api';
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://mcqvitals.collegieum.com/api';
 
 const getHeaders = (body) => {
     const token = localStorage.getItem('token');
