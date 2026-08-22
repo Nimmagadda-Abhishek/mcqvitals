@@ -1,4 +1,4 @@
-const BASE_URL = import.meta.env.VITE_API_URL || 'https://subarctic-referable-strainer.ngrok-free.dev/api';
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://13.203.78.106/api';
 
 const getHeaders = (body) => {
     const token = localStorage.getItem('token');
@@ -19,9 +19,8 @@ const getHeaders = (body) => {
     return headers;
 };
 
-const handleResponse = async (response, url) => {
+const handleResponse = async (response) => {
     const data = await response.json();
-    console.log(`[API Response] ${response.status} ${url}:`, data);
 
     if (!response.ok) {
         const error = new Error(data.message || 'Something went wrong');
@@ -38,18 +37,6 @@ const request = async (url, options = {}) => {
         ...getHeaders(options.body),
         ...options.headers
     };
-
-    // Safe logging for FormData
-    const logBody = options.body instanceof FormData ? '[FormData]' : (options.body ? JSON.parse(options.body) : '');
-    
-    if (options.method === 'POST') {
-        console.log(`[API POST Request] ${fullUrl}`, {
-            headers: mergedHeaders,
-            body: logBody
-        });
-    } else {
-        console.log(`[API Request] ${options.method || 'GET'} ${fullUrl}`, logBody);
-    }
 
     const response = await fetch(fullUrl, {
         ...options,
