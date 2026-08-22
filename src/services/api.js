@@ -1,4 +1,4 @@
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://13.203.78.106/api';
+const BASE_URL = import.meta.env.VITE_API_URL || 'https://api.mcqvitals.com/api';
 
 const getHeaders = (body) => {
     const token = localStorage.getItem('token');
