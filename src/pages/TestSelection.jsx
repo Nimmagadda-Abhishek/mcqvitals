@@ -235,6 +235,7 @@ const TestSelection = () => {
                         style={{
                           display: 'flex',
                           flexDirection: 'column',
+                          minWidth: 0,
                           opacity: exhausted || isLocked ? 0.78 : 1,
                           transition: 'opacity 0.2s ease',
                           position: 'relative',
@@ -251,7 +252,7 @@ const TestSelection = () => {
                           }} />
                         )}
 
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', flexWrap: 'wrap', marginBottom: '2rem' }}>
                           <div style={{ 
                             width: '56px', 
                             height: '56px', 
@@ -265,7 +266,7 @@ const TestSelection = () => {
                             {exhausted || isLocked ? <Lock size={26} /> : <ClipboardList size={28} />}
                           </div>
 
-                          <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center' }}>
+                          <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center', flexWrap: 'wrap', minWidth: 0 }}>
                             {/* Attempt badge */}
                             <div style={{ 
                               background: exhausted ? 'var(--error-container)' : attempts === 1 ? 'rgba(234, 179, 8, 0.15)' : 'var(--surface-low)', 
@@ -308,7 +309,7 @@ const TestSelection = () => {
                           </div>
                         </div>
 
-                        <h3 style={{ fontSize: '1.6rem', marginBottom: '0.5rem', lineHeight: 1.2 }}>{test.title}</h3>
+                        <h3 style={{ fontSize: '1.6rem', marginBottom: '0.5rem', lineHeight: 1.2, overflowWrap: 'anywhere' }}>{test.title}</h3>
                         <div style={{ 
                           fontSize: '0.9rem', 
                           color: 'var(--primary)', 
@@ -360,12 +361,13 @@ const TestSelection = () => {
                                 display: 'flex', 
                                 alignItems: 'center', 
                                 gap: '0.8rem',
+                                maxWidth: '100%',
                                 fontWeight: 800,
                                 border: 'none',
                                 cursor: 'pointer'
                               }}
                             >
-                              <Lock size={18} /> Unlock Premium
+                              <Lock size={18} /> <span style={{ overflowWrap: 'anywhere', textAlign: 'center' }}>Unlock Premium</span>
                             </button>
                           ) : exhausted ? (
                             <div style={{
@@ -393,13 +395,14 @@ const TestSelection = () => {
                                 display: 'flex', 
                                 alignItems: 'center', 
                                 gap: '0.8rem',
+                                maxWidth: '100%',
                                 fontWeight: 800,
                                 background: attempts === 1 ? 'linear-gradient(135deg, #d97706, #b45309)' : undefined,
                                 border: 'none',
                                 cursor: 'pointer'
                               }}
                             >
-                              {attempts === 1 ? 'Final Attempt' : 'Start Assessment'} <ArrowRight size={18} />
+                              <span style={{ overflowWrap: 'anywhere', textAlign: 'center' }}>{attempts === 1 ? 'Final Attempt' : 'Start Assessment'}</span> <ArrowRight size={18} />
                             </button>
                           )}
                         </div>

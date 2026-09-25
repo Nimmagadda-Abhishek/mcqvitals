@@ -17,6 +17,22 @@ const AdminApprovals = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [approvingId, setApprovingId] = useState(null);
 
+  const getUsersFromResponse = (response) => {
+    if (Array.isArray(response)) return response;
+    if (!response || typeof response !== 'object') return [];
+
+    const collectionKeys = ['users', 'pendingUsers', 'students', 'approvals'];
+    for (const key of collectionKeys) {
+      if (Array.isArray(response[key])) return response[key];
+    }
+
+    if (response.data && response.data !== response) {
+      return getUsersFromResponse(response.data);
+    }
+
+    return [];
+  };
+
   const loadPending = async () => {
     setError('');
     setLoading(true);
@@ -25,8 +41,8 @@ const AdminApprovals = () => {
         api.admin.getPendingApprovals(),
         api.admin.getDeviceChangeRequests()
       ]);
-      setUsers(Array.isArray(pendingData) ? pendingData : pendingData?.users || []);
-      setDeviceRequests(Array.isArray(deviceData) ? deviceData : deviceData?.users || []);
+      setUsers(getUsersFromResponse(pendingData));
+      setDeviceRequests(getUsersFromResponse(deviceData));
     } catch (e) {
       setError(e.message || 'Failed to load approvals');
       console.error(e);

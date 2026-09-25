@@ -74,6 +74,7 @@ const AdminTests = () => {
   const [editingData, setEditingData] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState(null);
+  const [actionLoading, setActionLoading] = useState(null);
 
   const [newTest, setNewTest] = useState({
     title: '',
@@ -179,33 +180,40 @@ const AdminTests = () => {
   };
   const handleCreateTest = async (e) => {
     e.preventDefault();
+    setActionLoading('create-test');
     try {
       await api.admin.createTest(newTest);
       setIsModalOpen(false);
-      loadTests();
+      await loadTests();
       setNewTest({ title: '', description: '', category: '', duration: 60, difficulty: 'Beginner', rating: 5 });
     } catch (error) {
       alert('Failed to create test');
+    } finally {
+      setActionLoading(null);
     }
   };
 
   const handleUpdateTest = async (e) => {
     e.preventDefault();
+    setActionLoading('update-test');
     try {
       await api.admin.updateTest(editingTest._id, editingTest);
       setIsEditModalOpen(false);
-      loadTests();
+      await loadTests();
       if (detailedTest && detailedTest._id === editingTest._id) {
         setDetailedTest({ ...detailedTest, ...editingTest });
       }
       alert('Module updated successfully');
     } catch (error) {
       alert('Failed to update module');
+    } finally {
+      setActionLoading(null);
     }
   };
 
   const handleAddQuestion = async (e) => {
     e.preventDefault();
+    setActionLoading('add-question');
     try {
       await api.admin.addQuestion(selectedTest._id, newQuestion);
       setIsQuestionModalOpen(false);
@@ -227,10 +235,13 @@ const AdminTests = () => {
       alert('Question added successfully');
     } catch (error) {
       alert(error.message || 'Failed to add question');
+    } finally {
+      setActionLoading(null);
     }
   };
 
   const handleUpdateQuestion = async (qId) => {
+    setActionLoading(`update-question-${qId}`);
     try {
       await api.admin.updateQuestion(qId, editingData);
       setEditingQuestionId(null);
@@ -240,12 +251,15 @@ const AdminTests = () => {
       alert('Question updated successfully');
     } catch (error) {
       alert('Failed to update question');
+    } finally {
+      setActionLoading(null);
     }
   };
 
   const handleDeleteQuestion = async (qId) => {
     if (window.confirm('Are you sure you want to delete this question?')) {
       try {
+        setActionLoading(`delete-question-${qId}`);
         await api.admin.deleteQuestion(qId);
         // Refresh detailed view
         const updatedDetails = await api.admin.getTestDetails(detailedTest._id);
@@ -253,27 +267,35 @@ const AdminTests = () => {
         alert('Question deleted successfully');
       } catch (error) {
         alert('Failed to delete question');
+      } finally {
+        setActionLoading(null);
       }
     }
   };
 
   const handleViewDetails = async (testId) => {
+    setActionLoading(`details-${testId}`);
     try {
       const data = await api.admin.getTestDetails(testId);
       setDetailedTest(data);
       setIsDetailsModalOpen(true);
     } catch (error) {
       alert('Failed to fetch test details');
+    } finally {
+      setActionLoading(null);
     }
   };
 
   const handleDeleteTest = async (id) => {
     if (window.confirm('Are you sure you want to delete this assessment? All associated questions will be removed.')) {
       try {
+        setActionLoading(`delete-test-${id}`);
         await api.admin.deleteTest(id);
-        loadTests();
+        await loadTests();
       } catch (error) {
         alert('Deletion failed');
+      } finally {
+        setActionLoading(null);
       }
     }
   };
@@ -426,11 +448,12 @@ const AdminTests = () => {
                     <Edit2 size={18} />
                   </button>
                   <button 
-                    onClick={() => handleDeleteTest(test._id)} 
-                    style={{ color: 'var(--error)', padding: '0.5rem', background: 'none', cursor: 'pointer', border: 'none' }}
+                    onClick={() => handleDeleteTest(test._id)}
+                    disabled={actionLoading === `delete-test-${test._id}`}
+                    style={{ color: 'var(--error)', padding: '0.5rem', background: 'none', cursor: actionLoading === `delete-test-${test._id}` ? 'not-allowed' : 'pointer', border: 'none', opacity: actionLoading === `delete-test-${test._id}` ? 0.6 : 1 }}
                     title="Delete Module"
                   >
-                    <Trash2 size={18} />
+                    {actionLoading === `delete-test-${test._id}` ? <span className="spinner-small" /> : <Trash2 size={18} />}
                   </button>
                 </div>
               </div>
@@ -472,6 +495,7 @@ const AdminTests = () => {
                 </button>
                 <button 
                   onClick={() => handleViewDetails(test._id)}
+                  disabled={actionLoading === `details-${test._id}`}
                   className="card-tonal"
                   style={{ 
                     padding: '0.8rem', 
@@ -485,7 +509,7 @@ const AdminTests = () => {
                     border: '1px solid var(--outline-variant)'
                   }}
                 >
-                  <Eye size={16} /> Details
+                  {actionLoading === `details-${test._id}` ? <span className="spinner-small" /> : <Eye size={16} />} {actionLoading === `details-${test._id}` ? 'Loading...' : 'Details'}
                 </button>
               </div>
             </div>
@@ -586,7 +610,7 @@ const AdminTests = () => {
                 <textarea required className="input-premium" style={{ minHeight: '120px', resize: 'none', lineHeight: '1.6' }} value={newTest.description} onChange={(e) => setNewTest({...newTest, description: e.target.value})} placeholder="Describe the learning objectives and scope of this assessment..." />
               </div>
 
-              <button className="primary-gradient" style={{ 
+              <button className="primary-gradient" type="submit" disabled={actionLoading === 'create-test'} style={{ 
                 padding: '1.4rem', 
                 borderRadius: '14px', 
                 color: 'white', 
@@ -597,7 +621,7 @@ const AdminTests = () => {
                 letterSpacing: '0.05em',
                 textTransform: 'uppercase'
               }}>
-                Deploy Module to Platform
+                {actionLoading === 'create-test' ? <><span className="spinner-small" style={{ borderColor: 'rgba(255, 255, 255, 0.45)', borderTopColor: 'white' }} /> Deploying...</> : 'Deploy Module to Platform'}
               </button>
             </form>
           </div>
@@ -760,7 +784,9 @@ const AdminTests = () => {
 
               </div>
 
-              <button className="primary-gradient" style={{ padding: '1.2rem', borderRadius: '12px', color: 'white', fontWeight: 800, marginTop: '1rem' }}>Commit Question to Test</button>
+              <button className="primary-gradient" type="submit" disabled={actionLoading === 'add-question'} style={{ padding: '1.2rem', borderRadius: '12px', color: 'white', fontWeight: 800, marginTop: '1rem', opacity: actionLoading === 'add-question' ? 0.75 : 1, cursor: actionLoading === 'add-question' ? 'not-allowed' : 'pointer' }}>
+                {actionLoading === 'add-question' ? <><span className="spinner-small" style={{ borderColor: 'rgba(255, 255, 255, 0.45)', borderTopColor: 'white' }} /> Adding...</> : 'Commit Question to Test'}
+              </button>
             </form>
           </div>
         </div>
@@ -865,8 +891,8 @@ const AdminTests = () => {
                 />
               </div>
 
-              <button type="submit" className="primary-gradient" style={{ padding: '1.2rem', borderRadius: '12px', color: 'white', fontWeight: 800, marginTop: '1rem' }}>
-                Save Settings
+              <button type="submit" className="primary-gradient" disabled={actionLoading === 'update-test'} style={{ padding: '1.2rem', borderRadius: '12px', color: 'white', fontWeight: 800, marginTop: '1rem', opacity: actionLoading === 'update-test' ? 0.75 : 1, cursor: actionLoading === 'update-test' ? 'not-allowed' : 'pointer' }}>
+                {actionLoading === 'update-test' ? <><span className="spinner-small" style={{ borderColor: 'rgba(255, 255, 255, 0.45)', borderTopColor: 'white' }} /> Saving...</> : 'Save Settings'}
               </button>
             </form>
           </div>
@@ -936,9 +962,10 @@ const AdminTests = () => {
                         <div style={{ display: 'flex', gap: '0.8rem' }}>
                           <button 
                             onClick={() => handleUpdateQuestion(q._id)}
-                            style={{ padding: '0.4rem 1rem', background: 'var(--success)', color: 'white', border: 'none', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer' }}
+                            disabled={actionLoading === `update-question-${q._id}`}
+                            style={{ padding: '0.4rem 1rem', background: 'var(--success)', color: 'white', border: 'none', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 800, cursor: actionLoading === `update-question-${q._id}` ? 'not-allowed' : 'pointer', opacity: actionLoading === `update-question-${q._id}` ? 0.7 : 1 }}
                           >
-                            Save Changes
+                            {actionLoading === `update-question-${q._id}` ? <><span className="spinner-small" style={{ width: '14px', height: '14px', borderColor: 'rgba(255, 255, 255, 0.45)', borderTopColor: 'white' }} /> Saving...</> : 'Save Changes'}
                           </button>
                           <button 
                             onClick={() => setEditingQuestionId(null)}
@@ -960,10 +987,11 @@ const AdminTests = () => {
                           </button>
                           <button 
                             onClick={() => handleDeleteQuestion(q._id)}
-                            style={{ padding: '0.4rem', background: 'var(--error-container)', color: 'var(--error)', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
+                            disabled={actionLoading === `delete-question-${q._id}`}
+                            style={{ padding: '0.4rem', background: 'var(--error-container)', color: 'var(--error)', border: 'none', borderRadius: '8px', cursor: actionLoading === `delete-question-${q._id}` ? 'not-allowed' : 'pointer', opacity: actionLoading === `delete-question-${q._id}` ? 0.6 : 1 }}
                             title="Delete Question"
                           >
-                            <Trash2 size={16} />
+                            {actionLoading === `delete-question-${q._id}` ? <span className="spinner-small" style={{ width: '14px', height: '14px' }} /> : <Trash2 size={16} />}
                           </button>
                         </div>
                       )}

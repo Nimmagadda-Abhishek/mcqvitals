@@ -14,17 +14,23 @@ const Register = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    const result = await register(`${firstName} ${lastName}`, email, password);
-    if (result.success) {
-      // If user is not yet approved, keep them away from protected routes.
-      if (isApproved) navigate('/dashboard');
-      else navigate('/pending-approval');
-    } else {
-      setError(result.message);
+    setIsSubmitting(true);
+    try {
+      const result = await register(`${firstName} ${lastName}`, email, password);
+      if (result.success) {
+        // If user is not yet approved, keep them away from protected routes.
+        if (isApproved) navigate('/dashboard');
+        else navigate('/pending-approval');
+      } else {
+        setError(result.message);
+      }
+    } finally {
+      setIsSubmitting(false);
     }
 
   };
@@ -143,7 +149,7 @@ const Register = () => {
             </label>
           </div>
 
-          <button className="primary-gradient" type="submit" style={{
+          <button className="primary-gradient" type="submit" disabled={isSubmitting} style={{
             padding: '1.1rem',
             borderRadius: 'var(--radius-md)',
             color: 'white',
@@ -154,9 +160,11 @@ const Register = () => {
             justifyContent: 'center',
             gap: '0.8rem',
             marginTop: '0.5rem',
-            boxShadow: '0 10px 25px -5px rgba(0, 55, 176, 0.3)'
+            boxShadow: '0 10px 25px -5px rgba(0, 55, 176, 0.3)',
+            opacity: isSubmitting ? 0.75 : 1,
+            cursor: isSubmitting ? 'not-allowed' : 'pointer'
           }}>
-            Create Account <ArrowRight size={18} />
+            {isSubmitting ? <><span className="spinner-small" style={{ borderColor: 'rgba(255, 255, 255, 0.45)', borderTopColor: 'white' }} /> Creating Account...</> : <>Create Account <ArrowRight size={18} /></>}
           </button>
         </form>
 

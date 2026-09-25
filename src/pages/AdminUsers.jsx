@@ -38,6 +38,18 @@ const AdminUsers = () => {
     u.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const isUserApproved = (user) => {
+    if (user.role === 'admin') return true;
+    if (user.approved === true || user.isApproved === true) return true;
+    if (typeof user.approvalStatus === 'string') {
+      return user.approvalStatus.toLowerCase() === 'approved';
+    }
+    if (typeof user.status === 'string') {
+      return user.status.toLowerCase() === 'approved';
+    }
+    return false;
+  };
+
   return (
     <div style={{ maxWidth: '1400px', margin: '0 auto', paddingBottom: '5rem' }}>
       <header style={{ marginBottom: '3.5rem' }}>
@@ -83,7 +95,11 @@ const AdminUsers = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredUsers.map((user) => (
+                {filteredUsers.map((user) => {
+                  const isAdmin = user.role === 'admin';
+                  const approved = isUserApproved(user);
+
+                  return (
                   <tr key={user._id} style={{ borderBottom: '1px solid var(--outline-variant)', transition: 'background 0.2s' }} className="table-row-hover">
                     <td style={{ padding: '1.5rem 2rem' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '1.2rem' }}>
@@ -110,13 +126,13 @@ const AdminUsers = () => {
                     </td>
                     <td style={{ padding: '1.5rem 2rem' }}>
                       <div className="badge-tonal" style={{ 
-                        background: user.role === 'admin' ? 'var(--tertiary-container)' : 'var(--success-container)', 
-                        color: user.role === 'admin' ? 'var(--tertiary)' : 'var(--success)',
+                        background: isAdmin ? 'var(--tertiary-container)' : approved ? 'var(--success-container)' : 'rgba(255, 195, 0, 0.15)', 
+                        color: isAdmin ? 'var(--tertiary)' : approved ? 'var(--success)' : 'var(--tertiary)',
                         fontSize: '0.7rem',
                         fontWeight: 900,
                         textTransform: 'uppercase'
                       }}>
-                        {user.role === 'admin' ? 'System Administrator' : 'Verified Student'}
+                        {isAdmin ? 'System Administrator' : approved ? 'Verified Student' : 'Pending Approval'}
                       </div>
                     </td>
                     <td style={{ padding: '1.5rem 2rem' }}>
@@ -133,7 +149,8 @@ const AdminUsers = () => {
                       <button style={{ color: 'var(--on-surface-variant)', background: 'none' }}><MoreVertical size={20} /></button>
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>

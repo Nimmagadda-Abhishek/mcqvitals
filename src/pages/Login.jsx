@@ -20,6 +20,7 @@ const Login = () => {
   const [deviceMismatch, setDeviceMismatch] = React.useState(false);
   const [requestStatus, setRequestStatus] = React.useState('');
   const [isRequesting, setIsRequesting] = React.useState(false);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [showPassword, setShowPassword] = React.useState(false);
 
   const handleSubmit = async (e) => {
@@ -27,14 +28,19 @@ const Login = () => {
     setError('');
     setDeviceMismatch(false);
     setRequestStatus('');
-    const result = await login(email, password);
-    if (result.success) {
-      navigate('/dashboard');
-    } else {
-      setError(result.message);
-      if (result.errorData && result.errorData.deviceMismatch) {
-        setDeviceMismatch(true);
+    setIsSubmitting(true);
+    try {
+      const result = await login(email, password);
+      if (result.success) {
+        navigate('/dashboard');
+      } else {
+        setError(result.message);
+        if (result.errorData && result.errorData.deviceMismatch) {
+          setDeviceMismatch(true);
+        }
       }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -106,7 +112,7 @@ const Login = () => {
                     fontSize: '0.85rem'
                   }}
                 >
-                  {isRequesting ? 'Requesting...' : 'Request Device Change from Admin'}
+                  {isRequesting ? <><span className="spinner-small" style={{ width: '14px', height: '14px' }} /> Requesting...</> : 'Request Device Change from Admin'}
                 </button>
               </div>
             )}
@@ -166,7 +172,7 @@ const Login = () => {
           </div>
 
 
-          <button className="primary-gradient" type="submit" style={{
+          <button className="primary-gradient" type="submit" disabled={isSubmitting} style={{
             padding: '1.1rem',
             borderRadius: 'var(--radius-md)',
             color: 'white',
@@ -177,9 +183,11 @@ const Login = () => {
             justifyContent: 'center',
             gap: '0.8rem',
             marginTop: '0.5rem',
-            boxShadow: '0 10px 25px -5px rgba(0, 55, 176, 0.3)'
+            boxShadow: '0 10px 25px -5px rgba(0, 55, 176, 0.3)',
+            opacity: isSubmitting ? 0.75 : 1,
+            cursor: isSubmitting ? 'not-allowed' : 'pointer'
           }}>
-            Sign In <ArrowRight size={18} />
+            {isSubmitting ? <><span className="spinner-small" style={{ borderColor: 'rgba(255, 255, 255, 0.45)', borderTopColor: 'white' }} /> Signing In...</> : <>Sign In <ArrowRight size={18} /></>}
           </button>
         </form>
 

@@ -405,6 +405,7 @@ const FileList = () => {
           <h2 style={{ marginBottom: '0.5rem' }}>Connection Error</h2>
           <p style={{ color: 'var(--on-surface-variant)', marginBottom: '1.5rem' }}>{error}</p>
           <button
+            disabled={loading}
             onClick={() => { setError(null); setLoading(true); fetchResources(); }}
             style={{
               background: 'var(--primary)',
@@ -417,7 +418,7 @@ const FileList = () => {
               border: 'none'
             }}
           >
-            Retry
+            {loading ? <><span className="spinner-small" /> Retrying...</> : 'Retry'}
           </button>
         </div>
       )}

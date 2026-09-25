@@ -30,6 +30,7 @@ const Settings = () => {
   const [billingHistory, setBillingHistory] = useState([]);
   const [subscriptionDetails, setSubscriptionDetails] = useState(null);
   const [loadingHistory, setLoadingHistory] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
   const [adminStats, setAdminStats] = useState(null);
   const [adminSubscriptions, setAdminSubscriptions] = useState([]);
   const [plans, setPlans] = useState([]);
@@ -135,12 +136,15 @@ const Settings = () => {
     }
     
     try {
+      setIsCancelling(true);
       await api.subscription.cancel();
       await getProfile(); // Refresh context
       alert('Your subscription has been cancelled.');
     } catch (error) {
       console.error('Failed to cancel subscription', error);
       alert(error.message || 'Failed to cancel subscription');
+    } finally {
+      setIsCancelling(false);
     }
   };
 
@@ -464,6 +468,7 @@ const Settings = () => {
               </button>
               <button 
                 onClick={handleCancelSubscription}
+                disabled={isCancelling}
                 style={{
                   flex: 1,
                   padding: '1.2rem',
@@ -471,10 +476,11 @@ const Settings = () => {
                   color: 'var(--error)',
                   border: '2px solid rgba(186, 26, 26, 0.1)',
                   fontWeight: 700,
-                  cursor: 'pointer'
+                  cursor: isCancelling ? 'not-allowed' : 'pointer',
+                  opacity: isCancelling ? 0.7 : 1
                 }}
               >
-                Cancel Subscription
+                {isCancelling ? <><span className="spinner-small" /> Cancelling...</> : 'Cancel Subscription'}
               </button>
             </div>
 
