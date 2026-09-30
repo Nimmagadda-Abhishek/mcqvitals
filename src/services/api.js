@@ -13,9 +13,6 @@ const getHeaders = (body) => {
         headers['Authorization'] = `Bearer ${token}`;
     }
 
-    // Add ngrok header to bypass warning page
-    headers['ngrok-skip-browser-warning'] = 'true';
-
     return headers;
 };
 
