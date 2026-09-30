@@ -5,34 +5,6 @@ import { ArrowRight, CheckCircle, Zap, Shield, BookOpen, BarChart3, Star, ArrowU
 const LandingPage = () => {
   return (
     <div className="landing-page">
-      {/* Promotional Banner */}
-      <div style={{
-        background: 'var(--accent)',
-        color: '#0d2c4b',
-        padding: '12px 20px',
-        textAlign: 'center',
-        fontWeight: '700',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        gap: '10px',
-        boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
-      }}>
-        <span>🎉 Special Offer: Register now for one month free subscription!</span>
-        <Link to="/register" style={{
-          background: '#0d2c4b',
-          color: 'var(--accent)',
-          padding: '4px 12px',
-          borderRadius: '20px',
-          textDecoration: 'none',
-          fontSize: '0.85rem',
-          fontWeight: 'bold'
-        }}>
-          Claim Now
-        </Link>
-      </div>
-
       {/* Hero Section */}
       <section style={{
         padding: '8rem 5% 6rem',

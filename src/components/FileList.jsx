@@ -327,7 +327,7 @@ const FileList = () => {
             gap: '0.5rem'
           }}>
             <Clock size={18} />
-            Your free trial access ends in {Math.ceil((new Date(user.subscription.expiryDate) - new Date()) / (1000 * 60 * 60 * 24))} days ({new Date(user.subscription.expiryDate).toLocaleDateString()})
+            Your premium access ends in {Math.ceil((new Date(user.subscription.expiryDate) - new Date()) / (1000 * 60 * 60 * 24))} days ({new Date(user.subscription.expiryDate).toLocaleDateString()})
           </div>
         )}
       </header>

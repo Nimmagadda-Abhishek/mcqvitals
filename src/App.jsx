@@ -1,32 +1,40 @@
+import { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Layout from './components/layout/Layout';
-import LandingPage from './pages/LandingPage';
-import Dashboard from './pages/Dashboard';
-import TestInterface from './pages/TestInterface';
-import ResultsPage from './pages/ResultsPage';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import ForgotPassword from './pages/ForgotPassword';
-import ResetPassword from './pages/ResetPassword';
-import SolutionsReview from './pages/SolutionsReview';
-import Resources from './pages/Resources';
-import Settings from './pages/Settings';
-import TestSelection from './pages/TestSelection';
-import SessionAnalysis from './pages/SessionAnalysis';
-import AdminDashboard from './pages/AdminDashboard';
-import AdminTests from './pages/AdminTests';
-import AdminUsers from './pages/AdminUsers';
-import AdminResults from './pages/AdminResults';
-import AdminResources from './pages/AdminResources';
-import AdminApprovals from './pages/AdminApprovals';
-import PendingApproval from './pages/PendingApproval';
-import Pricing from './pages/Pricing';
-import AdminSubscriptions from './pages/AdminSubscriptions';
-import PrivacyPolicy from './pages/PrivacyPolicy';
-import TermsOfService from './pages/TermsOfService';
-import ContactUs from './pages/ContactUs';
-import About from './pages/About';
+
+const LandingPage = lazy(() => import('./pages/LandingPage'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const TestInterface = lazy(() => import('./pages/TestInterface'));
+const ResultsPage = lazy(() => import('./pages/ResultsPage'));
+const Login = lazy(() => import('./pages/Login'));
+const Register = lazy(() => import('./pages/Register'));
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
+const ResetPassword = lazy(() => import('./pages/ResetPassword'));
+const SolutionsReview = lazy(() => import('./pages/SolutionsReview'));
+const Resources = lazy(() => import('./pages/Resources'));
+const Settings = lazy(() => import('./pages/Settings'));
+const TestSelection = lazy(() => import('./pages/TestSelection'));
+const SessionAnalysis = lazy(() => import('./pages/SessionAnalysis'));
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
+const AdminTests = lazy(() => import('./pages/AdminTests'));
+const AdminUsers = lazy(() => import('./pages/AdminUsers'));
+const AdminResults = lazy(() => import('./pages/AdminResults'));
+const AdminResources = lazy(() => import('./pages/AdminResources'));
+const AdminApprovals = lazy(() => import('./pages/AdminApprovals'));
+const PendingApproval = lazy(() => import('./pages/PendingApproval'));
+const Pricing = lazy(() => import('./pages/Pricing'));
+const AdminSubscriptions = lazy(() => import('./pages/AdminSubscriptions'));
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
+const TermsOfService = lazy(() => import('./pages/TermsOfService'));
+const ContactUs = lazy(() => import('./pages/ContactUs'));
+const About = lazy(() => import('./pages/About'));
+
+const PageLoading = () => (
+  <div style={{ minHeight: '50vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <span className="spinner-small" aria-label="Loading page" />
+  </div>
+);
 
 
 const ProtectedRoute = ({ children }) => {
@@ -60,7 +68,8 @@ function App() {
   return (
     <Router>
       <Layout>
-        <Routes>
+        <Suspense fallback={<PageLoading />}>
+          <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
@@ -123,6 +132,7 @@ function App() {
               <AdminRoute><AdminSubscriptions /></AdminRoute>
             } />
           </Routes>
+        </Suspense>
 
         </Layout>
       </Router>
