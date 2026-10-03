@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import api from '../services/api';
 import Shimmer, { StatsShimmer, CardShimmer } from '../components/common/Shimmer';
+import ExplanationText from '../components/common/ExplanationText';
 
 const SolutionsReview = () => {
   const { resultId } = useParams();
@@ -302,9 +303,10 @@ const SolutionsReview = () => {
                     <Info size={20} />
                     <span style={{ fontSize: '0.8rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Academic Rationale</span>
                   </div>
-                  <p style={{ color: 'var(--on-surface-variant)', fontSize: '1rem', lineHeight: '1.8', marginBottom: (question.explanation?.images?.length > 0 ? '2rem' : 0) }}>
-                    {question.explanation?.text || ''}
-                  </p>
+                  <ExplanationText
+                    text={question.explanation?.text}
+                    style={{ color: 'var(--on-surface-variant)', fontSize: '1rem', lineHeight: '1.8', marginBottom: (question.explanation?.images?.length > 0 ? '2rem' : 0) }}
+                  />
                   
                   {question.explanation?.images && question.explanation.images.length > 0 && (
                     <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginTop: '1rem' }}>

@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import api from '../services/api';
 import { CardShimmer } from '../components/common/Shimmer';
+import ExplanationText from '../components/common/ExplanationText';
 
 
 const MultiImageUploader = ({ images, onChange }) => {
@@ -1215,9 +1216,10 @@ const AdminTests = () => {
 
                         <div style={{ padding: '1.5rem', background: 'var(--surface)', borderRadius: '12px', borderLeft: '4px solid var(--primary)' }}>
                           <div style={{ fontSize: '0.75rem', fontWeight: 900, color: 'var(--primary)', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Academic Rationale</div>
-                          <p style={{ fontSize: '0.9rem', color: 'var(--on-surface-variant)', lineHeight: 1.6, marginBottom: q.explanation?.image ? '1rem' : 0 }}>
-                            {q.explanation?.text || ''}
-                          </p>
+                          <ExplanationText
+                            text={q.explanation?.text}
+                            style={{ fontSize: '0.9rem', color: 'var(--on-surface-variant)', lineHeight: 1.6, marginBottom: q.explanation?.image ? '1rem' : 0 }}
+                          />
                           
                           {q.explanation?.images && q.explanation.images.length > 0 && (
                             <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginTop: '0.5rem' }}>

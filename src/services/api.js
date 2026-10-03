@@ -189,7 +189,7 @@ const api = {
         // Device Change Approvals
         getDeviceChangeRequests: () =>
             request('/admin/device-change-requests'),
-            
+
         approveDeviceChange: (userId) =>
             request(`/admin/device-change-requests/${userId}/approve`, {
                 method: 'POST'

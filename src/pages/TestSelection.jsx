@@ -8,7 +8,8 @@ import {
   Filter,
   Star,
   Lock,
-  RotateCcw
+  RotateCcw,
+  Crown
 } from 'lucide-react';
 import api from '../services/api';
 import { CardShimmer } from '../components/common/Shimmer';
@@ -284,15 +285,18 @@ const TestSelection = () => {
                             </div>
                             {!test.isFree && (
                               <div style={{ 
-                                background: 'var(--primary)', 
+                                background: 'linear-gradient(135deg, #f59e0b, #d97706)',
                                 padding: '0.5rem 1rem', 
                                 borderRadius: '20px',
                                 fontSize: '0.75rem',
                                 fontWeight: 800,
                                 color: 'white',
-                                textTransform: 'uppercase'
+                                textTransform: 'uppercase',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.35rem'
                               }}>
-                                Premium
+                                <Crown size={14} /> Premium
                               </div>
                             )}
                             <div style={{ 
