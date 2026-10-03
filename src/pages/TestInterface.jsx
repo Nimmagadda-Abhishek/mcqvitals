@@ -24,12 +24,18 @@ const TestInterface = () => {
   const [attemptBlocked, setAttemptBlocked] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   // Enable screen capture prevention for test-taking
   const handleStartTest = () => {
     // Attempt fullscreen
     if (document.documentElement.requestFullscreen) {
-      document.documentElement.requestFullscreen().catch(err => console.log('Fullscreen failed:', err));
+      document.documentElement.requestFullscreen().then(() => {
+        // Lock the escape key to prevent exiting fullscreen easily
+        if (navigator.keyboard && navigator.keyboard.lock) {
+          navigator.keyboard.lock(['Escape']).catch(err => console.log('Keyboard lock failed:', err));
+        }
+      }).catch(err => console.log('Fullscreen failed:', err));
     }
     // Trap back button
     window.history.pushState(null, '', window.location.href);
@@ -37,7 +43,16 @@ const TestInterface = () => {
       window.history.go(1);
     };
     setHasStarted(true);
+    setIsFullscreen(true);
   };
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
 
   useScreenCapturePrevention(
     (reason) => {
@@ -279,6 +294,33 @@ const TestInterface = () => {
             cursor: 'pointer'
           }}>
             Enter Fullscreen & Begin
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (hasStarted && !isFullscreen && !isSubmitted && user?.role !== 'admin') {
+    return (
+      <div style={{ maxWidth: '800px', margin: '6rem auto', textAlign: 'center', padding: '0 1rem' }}>
+        <div className="section-tonal padding-responsive">
+          <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'var(--error-container)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 2rem' }}>
+            <ShieldAlert size={40} color="var(--error)" />
+          </div>
+          <h2 style={{ fontSize: '2.5rem', marginBottom: '1rem', color: 'var(--error)' }}>Test Paused</h2>
+          <p style={{ color: 'var(--on-surface-variant)', fontSize: '1.2rem', marginBottom: '3rem' }}>
+            You have exited fullscreen mode. The test cannot continue until you return to the secure fullscreen environment.
+          </p>
+          <button onClick={handleStartTest} className="primary-gradient" style={{
+            padding: '1.2rem 3rem',
+            borderRadius: 'var(--radius-md)',
+            color: 'white',
+            fontWeight: 800,
+            fontSize: '1.1rem',
+            border: 'none',
+            cursor: 'pointer'
+          }}>
+            Return to Fullscreen
           </button>
         </div>
       </div>

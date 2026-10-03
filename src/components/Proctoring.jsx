@@ -148,13 +148,28 @@ const Proctoring = ({ testId, userId, isAdmin, isSubmitted, onTerminate }) => {
 
     if (violationCount > 0 && !isAdmin && !isSubmitted) {
         return (
-            <div className="fixed top-4 right-4 z-[9999] bg-red-600 text-white px-5 py-3 rounded-lg shadow-2xl flex items-center gap-3 border-2 border-red-800 animate-bounce">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <div style={{
+                position: 'fixed',
+                top: '1rem',
+                right: '1rem',
+                zIndex: 9999,
+                backgroundColor: '#dc2626',
+                color: 'white',
+                padding: '0.75rem 1.25rem',
+                borderRadius: '0.5rem',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.75rem',
+                border: '2px solid #991b1b',
+                maxWidth: 'calc(100vw - 2rem)'
+            }}>
+                <svg style={{ width: '24px', height: '24px', color: 'white', flexShrink: 0 }} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
-                <div className="flex flex-col">
-                    <span className="font-bold text-sm tracking-wide uppercase">Security Warning</span>
-                    <span className="font-medium text-xs">Violations: {violationCount}/3</span>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <span style={{ fontWeight: 'bold', fontSize: '0.875rem', letterSpacing: '0.025em', textTransform: 'uppercase' }}>Security Warning</span>
+                    <span style={{ fontWeight: '500', fontSize: '0.75rem' }}>Violations: {violationCount}/3</span>
                 </div>
             </div>
         );
