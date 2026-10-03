@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 
 const Register = () => {
   const navigate = useNavigate();
-  const { register, isApproved } = useAuth();
+  const { register } = useAuth();
 
 
   const [firstName, setFirstName] = useState('');
@@ -23,9 +23,7 @@ const Register = () => {
     try {
       const result = await register(`${firstName} ${lastName}`, email, password);
       if (result.success) {
-        // If user is not yet approved, keep them away from protected routes.
-        if (isApproved) navigate('/dashboard');
-        else navigate('/pending-approval');
+        navigate('/dashboard');
       } else {
         setError(result.message);
       }

@@ -22,7 +22,6 @@ const AdminUsers = lazy(() => import('./pages/AdminUsers'));
 const AdminResults = lazy(() => import('./pages/AdminResults'));
 const AdminResources = lazy(() => import('./pages/AdminResources'));
 const AdminApprovals = lazy(() => import('./pages/AdminApprovals'));
-const PendingApproval = lazy(() => import('./pages/PendingApproval'));
 const Pricing = lazy(() => import('./pages/Pricing'));
 const AdminSubscriptions = lazy(() => import('./pages/AdminSubscriptions'));
 const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
@@ -38,14 +37,10 @@ const PageLoading = () => (
 
 
 const ProtectedRoute = ({ children }) => {
-  const { isLoggedIn, user, isApproved, approvalStatus } = useAuth();
+  const { isLoggedIn, user } = useAuth();
   if (!isLoggedIn) return <Navigate to="/login" />;
 
-  // If user is an admin, never show the student approval screen.
-  if (user?.role === 'admin') return children;
-
-  if (isApproved) return children;
-  return <Navigate to="/pending-approval" state={{ approvalStatus }} />;
+  return children;
 };
 
 
@@ -106,7 +101,6 @@ function App() {
             <Route path="/settings" element={
               <ProtectedRoute><Settings /></ProtectedRoute>
             } />
-            <Route path="/pending-approval" element={<PendingApproval />} />
 
 
             {/* Admin Routes */}
