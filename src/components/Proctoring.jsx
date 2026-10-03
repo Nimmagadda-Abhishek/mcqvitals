@@ -49,6 +49,7 @@ const Proctoring = ({ testId, userId, isAdmin, isSubmitted, onTerminate }) => {
             } else {
                 const remaining = 3 - res.violationCount;
                 alert(`Security Alert: ${fullReason}.\nWarnings remaining: ${remaining < 0 ? 0 : remaining}. Such attempts may result in immediate termination.`);
+                lastViolationTime.current = Date.now();
             }
         } catch (error) {
             console.error('Error logging screen capture violation:', error);
@@ -82,6 +83,8 @@ const Proctoring = ({ testId, userId, isAdmin, isSubmitted, onTerminate }) => {
                 } else {
                     const remaining = 3 - res.violationCount;
                     alert(`Security Alert: ${reason}.\nWarnings remaining: ${remaining < 0 ? 0 : remaining}. Please stay on this tab to avoid termination.`);
+                    // Reset cooldown after alert is dismissed to prevent blur/focus events from triggering another violation
+                    lastViolationTime.current = Date.now();
                 }
             } catch (error) {
                 console.error('Error logging violation:', error);
@@ -94,15 +97,6 @@ const Proctoring = ({ testId, userId, isAdmin, isSubmitted, onTerminate }) => {
 
         const handleBlur = () => {
             logViolation('Browser window lost focus');
-        };
-
-        const handleResize = () => {
-            // Mobile browsers trigger resize on scroll due to address bar hiding
-            if (window.innerWidth <= 1024) return;
-            
-            // For desktop, only trigger if it's a significant width change
-            // This prevents false positives from minor accidental resizing
-            logViolation('Window resized (possible overlay or split screen)');
         };
 
         const handleContextMenu = (e) => {
@@ -134,7 +128,6 @@ const Proctoring = ({ testId, userId, isAdmin, isSubmitted, onTerminate }) => {
         // Desktop & Mobile Events
         document.addEventListener('visibilitychange', handleVisibilityChange);
         window.addEventListener('blur', handleBlur);
-        window.addEventListener('resize', handleResize);
         document.addEventListener('contextmenu', handleContextMenu);
         document.addEventListener('copy', handleCopyPaste);
         document.addEventListener('cut', handleCopyPaste);
@@ -145,7 +138,6 @@ const Proctoring = ({ testId, userId, isAdmin, isSubmitted, onTerminate }) => {
         return () => {
             document.removeEventListener('visibilitychange', handleVisibilityChange);
             window.removeEventListener('blur', handleBlur);
-            window.removeEventListener('resize', handleResize);
             document.removeEventListener('contextmenu', handleContextMenu);
             document.removeEventListener('copy', handleCopyPaste);
             document.removeEventListener('cut', handleCopyPaste);
