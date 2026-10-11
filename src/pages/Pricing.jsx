@@ -85,7 +85,7 @@ const Pricing = () => {
         orderData = await api.subscription.createOrder(planId);
       }
 
-      // 2. Initialize Razorpay Checkout for Subscriptions
+      // 2. Initialize Razorpay Checkout for the order created by the backend
       const options = {
         key: orderData.key,
         amount: orderData.amount,
@@ -93,18 +93,17 @@ const Pricing = () => {
         name: 'McqVitals',
         description: `${planId === 'monthly' ? 'Monthly' : 'Yearly'} Pro Subscription`,
         image: window.location.origin + '/logo.png',
-        subscription_id: orderData.orderId, // orderData.orderId actually holds the subscription ID now
+        order_id: orderData.orderId,
         handler: async function (response) {
           try {
-            const verifyData = await api.subscription.verifyPayment({
-              razorpay_subscription_id: response.razorpay_subscription_id,
+            await api.subscription.verifyPayment({
+              razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
               plan: planId
             });
 
             alert('Payment successful! Your subscription is active.');
-            // Quick refresh to update user context
             window.location.reload();
           } catch (err) {
             console.error(err);
