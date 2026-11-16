@@ -282,7 +282,7 @@ const Settings = () => {
           </div>
         );
 
-      case 'subscription':
+      case 'subscription': {
         if (user?.role === 'admin') {
           return (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '3rem' }}>
@@ -382,9 +382,15 @@ const Settings = () => {
           );
         }
 
-        const currentPlanId = subscriptionDetails?.currentPlan && subscriptionDetails.currentPlan !== 'none' ? subscriptionDetails.currentPlan : user?.subscription?.plan;
+        const currentPlanId = subscriptionDetails
+          ? subscriptionDetails.currentPlan !== 'none' ? subscriptionDetails.currentPlan : 'none'
+          : user?.subscription?.plan;
         const currentPlanDetails = plans.find(p => p.id === currentPlanId) || null;
         const isSubActive = subscriptionDetails?.currentPlan && subscriptionDetails.currentPlan !== 'none';
+        const isTrialActive = user?.subscription?.isTrial &&
+          user.subscription.expiryDate &&
+          new Date(user.subscription.expiryDate) > new Date();
+        const isTrial = Boolean(subscriptionDetails?.isTrial || isTrialActive);
         
         let expiryDate = 'N/A';
         if (subscriptionDetails?.nextBillingDate) {
@@ -393,7 +399,7 @@ const Settings = () => {
            expiryDate = new Date(user.subscription.expiryDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
         }
 
-        const displayAmount = subscriptionDetails?.amount || (currentPlanDetails ? currentPlanDetails.price : 0);
+        const displayAmount = subscriptionDetails?.amount ?? (currentPlanDetails ? currentPlanDetails.price : 0);
 
         return (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '3rem' }}>
@@ -430,7 +436,7 @@ const Settings = () => {
                 </div>
                 <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? '1.5rem' : '4rem' }}>
                   <div>
-                    <div style={{ fontSize: '0.8rem', opacity: 0.7, marginBottom: '0.4rem' }}>NEXT BILLING</div>
+                    <div style={{ fontSize: '0.8rem', opacity: 0.7, marginBottom: '0.4rem' }}>{isTrial ? 'FREE TRIAL ENDS' : 'NEXT BILLING'}</div>
                     <div style={{ fontWeight: 600 }}>{isSubActive ? expiryDate : 'N/A'}</div>
                   </div>
                   <div>
@@ -524,6 +530,7 @@ const Settings = () => {
             </div>
           </div>
         );
+      }
 
       case 'preferences':
         return (

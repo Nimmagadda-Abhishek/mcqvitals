@@ -25,12 +25,48 @@ const LandingPage = () => {
               color: 'var(--accent)',
               fontSize: '0.85rem',
               fontWeight: 700,
-              marginBottom: '2.5rem',
+              marginBottom: '1.5rem',
               border: '1px solid rgba(255, 255, 255, 0.2)'
             }}>
               <Zap size={14} fill="var(--accent)" />
               McqVitals • Elevate Your Medical Learning.
             </div>
+            <Link to="/register" style={{
+              display: 'grid',
+              gridTemplateColumns: 'auto minmax(0, 1fr) auto',
+              alignItems: 'center',
+              gap: '0.8rem',
+              width: 'fit-content',
+              maxWidth: '100%',
+              boxSizing: 'border-box',
+              padding: '0.8rem 1rem',
+              marginBottom: '2rem',
+              borderRadius: '16px',
+              border: '1px solid rgba(64, 224, 208, 0.6)',
+              background: 'rgba(64, 224, 208, 0.12)',
+              color: 'white',
+              textDecoration: 'none',
+              boxShadow: '0 10px 24px rgba(0, 0, 0, 0.15)'
+            }}>
+              <span style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                padding: '0.45rem 0.65rem',
+                borderRadius: '10px',
+                background: 'var(--accent)',
+                color: 'var(--primary)',
+                fontSize: '0.75rem',
+                fontWeight: 900,
+                whiteSpace: 'nowrap'
+              }}>
+                <Star size={14} fill="currentColor" /> 1 MONTH FREE
+              </span>
+              <span style={{ fontSize: '0.9rem', lineHeight: 1.4 }}>
+                No payment required at signup
+              </span>
+              <ArrowUpRight size={18} color="var(--accent)" />
+            </Link>
             <h1 style={{
               fontSize: 'clamp(3rem, 6vw, 5.5rem)',
               lineHeight: 1.1,
@@ -127,7 +163,9 @@ const LandingPage = () => {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '5rem', flexWrap: 'wrap', gap: '2rem' }}>
             <div>
               <h2 style={{ fontSize: '3rem', marginBottom: '1rem' }}>Invest in Your Intellect.</h2>
-              <p style={{ color: 'var(--on-surface-variant)', fontSize: '1.1rem' }}>Choose the tier that aligns with your academic goals.</p>
+              <p style={{ color: 'var(--on-surface-variant)', fontSize: '1.1rem' }}>
+                Every new account starts with one month of Pro free. No payment is required until you choose a paid plan after the trial.
+              </p>
             </div>
           </div>
 
@@ -162,7 +200,7 @@ const LandingPage = () => {
 
             <div className="card-tonal" style={{ padding: '4rem' }}>
               <h3 style={{ fontSize: '2rem', marginBottom: '1rem' }}>Monthly Pro</h3>
-              <p style={{ color: 'var(--on-surface-variant)', marginBottom: '3rem' }}>Perfect for standard test prep.</p>
+              <p style={{ color: 'var(--on-surface-variant)', marginBottom: '3rem' }}>Perfect for standard test prep. Start with one free month of Pro.</p>
               <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0.5rem', marginBottom: '4rem' }}>
                 <span style={{ fontSize: '4rem', fontWeight: 800, lineHeight: 1 }}>₹299</span>
                 <span style={{ color: 'var(--on-surface-variant)', marginBottom: '0.8rem' }}>/mo</span>
@@ -191,7 +229,7 @@ const LandingPage = () => {
             <div className="card-tonal" style={{ padding: '4rem', background: 'var(--on-surface)', color: 'white', position: 'relative' }}>
               <div style={{ position: 'absolute', top: '2rem', right: '2rem', background: 'var(--primary)', padding: '0.4rem 1rem', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 800 }}>MOST POPULAR</div>
               <h3 style={{ fontSize: '2rem', marginBottom: '1rem' }}>Yearly Pro</h3>
-              <p style={{ opacity: 0.7, marginBottom: '3rem' }}>Designed for serious candidates aiming for top percentiles.</p>
+              <p style={{ opacity: 0.7, marginBottom: '3rem' }}>Designed for serious candidates aiming for top percentiles. Includes one free month of Pro at signup.</p>
               <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0.5rem', marginBottom: '4rem' }}>
                 <span style={{ fontSize: '4rem', fontWeight: 800, lineHeight: 1 }}>₹1499</span>
                 <span style={{ opacity: 0.7, marginBottom: '0.8rem' }}>/yr</span>

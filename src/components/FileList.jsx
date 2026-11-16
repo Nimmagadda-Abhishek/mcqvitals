@@ -64,6 +64,9 @@ const FileList = () => {
   const containerRef = useRef(null);
 
   const filters = ['All', 'document', 'image', 'video', 'link'];
+  const hasActiveSubscription = user?.subscription?.status === 'active' &&
+    user.subscription.expiryDate &&
+    new Date(user.subscription.expiryDate) > new Date();
 
   // Watermark text based on logged-in user
   const watermarkText = user
@@ -314,7 +317,7 @@ const FileList = () => {
           Explore curated academic materials, verified research papers, and lecture
           series uploaded by our academic administration.
         </p>
-        {user?.subscription?.status === 'active' && user?.subscription?.expiryDate && new Date(user.subscription.expiryDate) > new Date() && (
+        {hasActiveSubscription && (
           <div style={{
             marginTop: '2rem',
             padding: '1rem 1.5rem',
@@ -433,7 +436,7 @@ const FileList = () => {
           <CardShimmer cards={6} />
         ) : filteredResources.map((res, index) => {
           const categoryColors = getCategoryColors(res.type);
-          const isLocked = !res.isFree && user?.subscription?.status !== 'active';
+          const isLocked = !res.isFree && !hasActiveSubscription;
 
           return (
             <div

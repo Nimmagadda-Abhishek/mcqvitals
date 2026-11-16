@@ -12,7 +12,6 @@ import {
   CheckCircle,
   FileText,
   ShieldCheck,
-  Smartphone,
   RefreshCw,
   AlertCircle
 } from 'lucide-react';
@@ -36,7 +35,6 @@ const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [pendingStudents, setPendingStudents] = useState([]);
-  const [deviceRequests, setDeviceRequests] = useState([]);
   const [approvalsLoading, setApprovalsLoading] = useState(true);
   const [approvalError, setApprovalError] = useState('');
   const [approvingId, setApprovingId] = useState(null);
@@ -56,12 +54,8 @@ const AdminDashboard = () => {
     setApprovalsLoading(true);
     setApprovalError('');
     try {
-      const [students, devices] = await Promise.all([
-        api.admin.getPendingApprovals(),
-        api.admin.getDeviceChangeRequests()
-      ]);
+      const students = await api.admin.getPendingApprovals();
       setPendingStudents(getRequestsFromResponse(students));
-      setDeviceRequests(getRequestsFromResponse(devices));
     } catch (error) {
       setApprovalError(error.message || 'Could not load approval requests.');
     } finally {
@@ -76,22 +70,17 @@ const AdminDashboard = () => {
 
   const resolveUserId = (user) => user?._id || user?.id || user?.userId;
 
-  const handleApproval = async (user, type) => {
+  const handleApproval = async (user) => {
     const userId = resolveUserId(user);
     if (!userId) {
       setApprovalError('This request is missing a student ID and cannot be approved.');
       return;
     }
 
-    const requestId = type === 'device' ? `device-${userId}` : userId;
     try {
-      setApprovingId(requestId);
+      setApprovingId(userId);
       setApprovalError('');
-      if (type === 'device') {
-        await api.admin.approveDeviceChange(userId);
-      } else {
-        await api.admin.approveUser(userId);
-      }
+      await api.admin.approveUser(userId);
       await loadApprovals();
     } catch (error) {
       setApprovalError(error.message || 'Could not approve this request.');
@@ -100,7 +89,7 @@ const AdminDashboard = () => {
     }
   };
 
-  const renderApprovalList = (requests, type) => {
+  const renderApprovalList = (requests) => {
     if (approvalsLoading) {
       return <p style={{ color: 'var(--on-surface-variant)', padding: '1rem 0' }}>Loading requests...</p>;
     }
@@ -117,13 +106,12 @@ const AdminDashboard = () => {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
         {requests.slice(0, 4).map((user, index) => {
           const id = resolveUserId(user);
-          const requestId = type === 'device' ? `device-${id}` : id;
-          const isApproving = approvingId === requestId;
+          const isApproving = approvingId === id;
           return (
-            <div key={id || `${type}-${index}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', padding: '0.9rem', background: 'var(--surface-lowest)', border: '1px solid var(--outline-variant)', borderRadius: '8px', flexWrap: 'wrap' }}>
+            <div key={id || `student-${index}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', padding: '0.9rem', background: 'var(--surface-lowest)', border: '1px solid var(--outline-variant)', borderRadius: '8px', flexWrap: 'wrap' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 0 }}>
-                <div style={{ width: '38px', height: '38px', flexShrink: 0, borderRadius: '8px', background: type === 'device' ? 'rgba(212, 136, 6, 0.12)' : 'var(--primary-container)', color: type === 'device' ? '#a86800' : 'var(--primary)', display: 'grid', placeItems: 'center' }}>
-                  {type === 'device' ? <Smartphone size={18} /> : <Users size={18} />}
+                <div style={{ width: '38px', height: '38px', flexShrink: 0, borderRadius: '8px', background: 'var(--primary-container)', color: 'var(--primary)', display: 'grid', placeItems: 'center' }}>
+                  <Users size={18} />
                 </div>
                 <div style={{ minWidth: 0 }}>
                   <div style={{ fontWeight: 800, overflowWrap: 'anywhere' }}>{user?.name || 'Unnamed student'}</div>
@@ -132,10 +120,10 @@ const AdminDashboard = () => {
               </div>
               <button
                 disabled={isApproving || !id}
-                onClick={() => handleApproval(user, type)}
-                style={{ padding: '0.65rem 0.85rem', borderRadius: '8px', background: isApproving ? 'var(--surface-high)' : type === 'device' ? '#a86800' : 'var(--success)', color: isApproving ? 'var(--on-surface-variant)' : 'white', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '0.4rem', whiteSpace: 'nowrap', opacity: !id ? 0.6 : 1 }}
+                onClick={() => handleApproval(user)}
+                style={{ padding: '0.65rem 0.85rem', borderRadius: '8px', background: isApproving ? 'var(--surface-high)' : 'var(--success)', color: isApproving ? 'var(--on-surface-variant)' : 'white', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '0.4rem', whiteSpace: 'nowrap', opacity: !id ? 0.6 : 1 }}
               >
-                <CheckCircle size={16} /> {isApproving ? 'Approving...' : type === 'device' ? 'Approve change' : 'Approve student'}
+                <CheckCircle size={16} /> {isApproving ? 'Approving...' : 'Approve student'}
               </button>
             </div>
           );
@@ -171,7 +159,7 @@ const AdminDashboard = () => {
             <h2 id="approval-requests-title" style={{ fontSize: '1.45rem', display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.25rem' }}>
               <AlertCircle size={22} color="var(--tertiary)" /> Needs your attention
             </h2>
-            <p style={{ color: 'var(--on-surface-variant)' }}>Pending student registrations and device change requests.</p>
+            <p style={{ color: 'var(--on-surface-variant)' }}>Pending student registrations.</p>
           </div>
           <Link to="/admin/approvals/pending" style={{ color: 'var(--primary)', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '0.5rem 0' }}>
             View all requests <ChevronRight size={18} />
@@ -185,24 +173,16 @@ const AdminDashboard = () => {
           </div>
         )}
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 360px), 1fr))', gap: '1rem' }}>
+        <div>
           <section style={{ padding: '1rem', background: 'var(--surface)', borderRadius: '8px', border: '1px solid var(--outline-variant)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
               <h3 style={{ fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Users size={18} color="var(--primary)" /> Student approvals</h3>
               <span aria-label={`${pendingStudents.length} pending student approvals`} style={{ minWidth: '28px', height: '28px', display: 'grid', placeItems: 'center', borderRadius: '14px', background: 'var(--primary-container)', color: 'var(--primary)', fontWeight: 900 }}>{approvalsLoading ? '...' : pendingStudents.length}</span>
             </div>
-            {renderApprovalList(pendingStudents, 'student')}
+            {renderApprovalList(pendingStudents)}
             {!approvalsLoading && pendingStudents.length > 4 && <p style={{ marginTop: '0.75rem', color: 'var(--on-surface-variant)', fontSize: '0.85rem' }}>And {pendingStudents.length - 4} more pending.</p>}
           </section>
 
-          <section style={{ padding: '1rem', background: 'var(--surface)', borderRadius: '8px', border: '1px solid var(--outline-variant)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
-              <h3 style={{ fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Smartphone size={18} color="#a86800" /> Device change approvals</h3>
-              <span aria-label={`${deviceRequests.length} pending device change approvals`} style={{ minWidth: '28px', height: '28px', display: 'grid', placeItems: 'center', borderRadius: '14px', background: 'rgba(212, 136, 6, 0.12)', color: '#8a5700', fontWeight: 900 }}>{approvalsLoading ? '...' : deviceRequests.length}</span>
-            </div>
-            {renderApprovalList(deviceRequests, 'device')}
-            {!approvalsLoading && deviceRequests.length > 4 && <p style={{ marginTop: '0.75rem', color: 'var(--on-surface-variant)', fontSize: '0.85rem' }}>And {deviceRequests.length - 4} more pending.</p>}
-          </section>
         </div>
       </section>
 

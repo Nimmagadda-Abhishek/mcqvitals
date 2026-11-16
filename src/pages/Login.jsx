@@ -1,8 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import api from '../services/api';
-import { Mail, Lock, ArrowRight, BookOpen, AlertCircle, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, ArrowRight, BookOpen, Eye, EyeOff } from 'lucide-react';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -17,17 +16,12 @@ const Login = () => {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [error, setError] = React.useState('');
-  const [deviceMismatch, setDeviceMismatch] = React.useState(false);
-  const [requestStatus, setRequestStatus] = React.useState('');
-  const [isRequesting, setIsRequesting] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [showPassword, setShowPassword] = React.useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setDeviceMismatch(false);
-    setRequestStatus('');
     setIsSubmitting(true);
     try {
       const result = await login(email, password);
@@ -35,26 +29,9 @@ const Login = () => {
         navigate('/dashboard');
       } else {
         setError(result.message);
-        if (result.errorData && result.errorData.deviceMismatch) {
-          setDeviceMismatch(true);
-        }
       }
     } finally {
       setIsSubmitting(false);
-    }
-  };
-
-  const handleDeviceChangeRequest = async () => {
-    try {
-      setIsRequesting(true);
-      const res = await api.auth.requestDeviceChange({ email });
-      setRequestStatus(res.message || 'Request submitted successfully.');
-      setError('');
-      setDeviceMismatch(false);
-    } catch (err) {
-      setError(err.message || 'Failed to submit request.');
-    } finally {
-      setIsRequesting(false);
     }
   };
 
@@ -75,47 +52,9 @@ const Login = () => {
           </p>
         </div>
 
-        <div style={{
-          backgroundColor: '#fffbe6',
-          border: '1px solid #ffe58f',
-          padding: '0.8rem',
-          borderRadius: 'var(--radius-sm)',
-          marginBottom: '1.5rem',
-          fontSize: '0.85rem',
-          color: '#d48806',
-          display: 'flex',
-          gap: '0.5rem',
-          alignItems: 'flex-start'
-        }}>
-          <AlertCircle size={16} style={{ flexShrink: 0, marginTop: '0.1rem' }} />
-          <span><strong>Note:</strong> You are allowed to use only ONE device for this platform. Once you log in, this device will be permanently bound to your account.</span>
-        </div>
-
-        {requestStatus && <div style={{ color: '#389e0d', backgroundColor: '#f6ffed', padding: '0.8rem', borderRadius: 'var(--radius-sm)', marginBottom: '1.5rem', fontSize: '0.85rem', textAlign: 'center', border: '1px solid #b7eb8f' }}>{requestStatus}</div>}
-        
         {error && (
           <div style={{ color: 'var(--error)', backgroundColor: '#fff1f0', padding: '0.8rem', borderRadius: 'var(--radius-sm)', marginBottom: '1.5rem', fontSize: '0.85rem', textAlign: 'center', border: '1px solid #ffa39e' }}>
             {error}
-            {deviceMismatch && (
-              <div style={{ marginTop: '0.8rem' }}>
-                <button 
-                  onClick={handleDeviceChangeRequest}
-                  disabled={isRequesting}
-                  style={{
-                    padding: '0.5rem 1rem',
-                    borderRadius: 'var(--radius-sm)',
-                    border: '1px solid #ffa39e',
-                    background: 'white',
-                    color: 'var(--error)',
-                    fontWeight: 600,
-                    cursor: isRequesting ? 'not-allowed' : 'pointer',
-                    fontSize: '0.85rem'
-                  }}
-                >
-                  {isRequesting ? <><span className="spinner-small" style={{ width: '14px', height: '14px' }} /> Requesting...</> : 'Request Device Change from Admin'}
-                </button>
-              </div>
-            )}
           </div>
         )}
 

@@ -76,21 +76,14 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      let deviceId = localStorage.getItem('app_device_id');
-      if (!deviceId) {
-        deviceId = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2) + Date.now().toString(36);
-        localStorage.setItem('app_device_id', deviceId);
-      }
-
-      const data = await api.auth.login({ email, password, deviceId });
+      const data = await api.auth.login({ email, password });
       localStorage.setItem('user', JSON.stringify(data));
       localStorage.setItem('token', data.token);
       setUser(data);
       setIsLoggedIn(true);
       return { success: true };
     } catch (error) {
-      // Pass the whole error object or message/flags if we have deviceMismatch
-      return { success: false, message: error.message, errorData: error };
+      return { success: false, message: error.message };
     }
   };
 

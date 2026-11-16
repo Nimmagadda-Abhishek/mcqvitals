@@ -46,7 +46,7 @@ const Register = () => {
           <img src="/logo.png" alt="Mcqvitals Logo" style={{ height: '72px', borderRadius: '12px', marginBottom: '1.5rem', objectFit: 'contain' }} />
           <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Create Account</h1>
           <p style={{ color: 'var(--on-surface-variant)', fontSize: '0.9rem' }}>
-            Start your journey towards academic excellence today.
+            Create an account and get your first month of Pro free. No payment required.
           </p>
         </div>
 

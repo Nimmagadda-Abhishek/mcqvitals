@@ -20,9 +20,7 @@ const handleResponse = async (response) => {
     const data = await response.json();
 
     if (!response.ok) {
-        const error = new Error(data.message || 'Something went wrong');
-        if (data.deviceMismatch) error.deviceMismatch = true;
-        throw error;
+        throw new Error(data.message || 'Something went wrong');
     }
     return data;
 };
@@ -65,12 +63,6 @@ const api = {
 
         resetPassword: (data) =>
             request('/auth/reset-password', {
-                method: 'POST',
-                body: JSON.stringify(data),
-            }),
-
-        requestDeviceChange: (data) =>
-            request('/auth/request-device-change', {
                 method: 'POST',
                 body: JSON.stringify(data),
             }),
@@ -183,15 +175,6 @@ const api = {
 
         approveUser: (userId) =>
             request(`/admin/approvals/${userId}/approve`, {
-                method: 'POST'
-            }),
-
-        // Device Change Approvals
-        getDeviceChangeRequests: () =>
-            request('/admin/device-change-requests'),
-
-        approveDeviceChange: (userId) =>
-            request(`/admin/device-change-requests/${userId}/approve`, {
                 method: 'POST'
             }),
 

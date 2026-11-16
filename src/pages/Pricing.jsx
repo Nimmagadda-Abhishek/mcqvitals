@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 
 const Pricing = () => {
-  const { user, login } = useAuth(); // Assuming login or updateUser updates context
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [loadingPlan, setLoadingPlan] = useState(null);
 
@@ -151,6 +151,14 @@ const Pricing = () => {
         <p style={{ fontSize: '1.2rem', color: 'var(--on-surface-variant)', maxWidth: '600px', margin: '0 auto' }}>
           Get unlimited access to advanced assessments and premium study materials. Choose the plan that fits your goals.
         </p>
+        <p style={{ fontSize: '1rem', color: 'var(--primary)', maxWidth: '650px', margin: '1.25rem auto 0', fontWeight: 700 }}>
+          Every new account gets one month of Pro free at signup. No payment is required during the trial; choose a paid plan after it ends.
+        </p>
+        {user?.subscription?.isTrial && user.subscription.expiryDate && (
+          <p style={{ color: 'var(--on-surface-variant)', marginTop: '0.75rem' }}>
+            Your free Pro trial {new Date(user.subscription.expiryDate) > new Date() ? 'ends' : 'ended'} on {new Date(user.subscription.expiryDate).toLocaleDateString()}.
+          </p>
+        )}
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', flexWrap: 'wrap' }}>
@@ -159,16 +167,18 @@ const Pricing = () => {
           const expiryDate = user?.subscription?.expiryDate ? new Date(user.subscription.expiryDate) : null;
           const isExpired = expiryDate ? expiryDate < now : false;
           const hasActiveSub = user?.subscription?.status === 'active' && !isExpired;
+          const isTrialActive = hasActiveSub && user?.subscription?.isTrial;
 
           const isFreePlan = plan.id === 'free';
           const isActivePlan = (isFreePlan && !hasActiveSub) || (hasActiveSub && user?.subscription?.plan === plan.id);
           const isDowngrade = hasActiveSub && user?.subscription?.plan === 'yearly' && plan.id === 'monthly';
           const isUpgrade = hasActiveSub && user?.subscription?.plan === 'monthly' && plan.id === 'yearly';
 
-          const isDisabled = isActivePlan || isDowngrade || loadingPlan === plan.id || (isFreePlan && hasActiveSub);
+          const isDisabled = isActivePlan || isDowngrade || loadingPlan === plan.id || (isFreePlan && hasActiveSub) || (isTrialActive && !isFreePlan);
 
           let buttonText = 'Subscribe Now';
-          if (isActivePlan) buttonText = 'Current Plan';
+          if (isTrialActive && !isFreePlan) buttonText = 'Included in Free Trial';
+          else if (isActivePlan) buttonText = isTrialActive ? 'Free Trial Active' : 'Current Plan';
           else if (isFreePlan && hasActiveSub) buttonText = 'Included';
           else if (isDowngrade) buttonText = 'Included in Yearly';
           else if (isUpgrade) buttonText = 'Upgrade Now';
